@@ -7,9 +7,10 @@ import (
 )
 
 type Error struct {
-	Status     string
+	Code       string
 	Message    string
 	Additional map[string]string
+	TraceID    string
 }
 
 func Pretty(w http.ResponseWriter, status int, data any) {
