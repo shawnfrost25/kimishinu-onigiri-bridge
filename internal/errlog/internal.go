@@ -28,6 +28,14 @@ func Internal(logger slog.Logger, w http.ResponseWriter, subject string, kind fa
 			"code", subject+"_missing",
 		)
 		InternalRes(w, trace)
+	case failure.InternalGeneralError:
+		logger.Error(
+			subjectMsg+" ended as unexpected internal error",
+			"err", err,
+			"status", http.StatusInternalServerError,
+			"code", subject+"_failed",
+		)
+		InternalRes(w, trace)
 	case failure.GenerationError:
 		logger.Error("failed to generate "+subjectMsg,
 			"err", err,
