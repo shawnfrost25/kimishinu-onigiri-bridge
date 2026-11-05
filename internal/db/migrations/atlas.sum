@@ -1,6 +1,3 @@
-h1:kT/fBCS2VHg8bfAG1hUBnbwsv986/hIi4PE1xu64iMI=
-000_river_jobs.down.sql h1:SIFskcYmSqyOTeLe2eS4UNRKpnx1XVMwi36913fjx+s=
-000_river_jobs.up.sql h1:AcRv2z8TKwKZ0qzcEmtE5ExTvyUCUosCiWX3sokKmjY=
-20261104115510_create_youtube_deplucation_table.sql h1:Oefk4VGcF5h16+awFKQ4lJx9xqbpFlBs6XQvLkfp9Vo=
-20261105191451_river_jobs.up.sql h1:FZDHRySwkplkx7lCooBYlSQkVsjd6f9sP4fVTSnn8V4=
-20261105191458_river_jobs.down.sql h1:KFzR4tKi3qiXxmtr1sisRgMsiTXvlUQ/YndRlP6OPds=
+h1:yHquettdyeOqIhL+Ml3BxYm5P2V3Z6UGnp2X3XOc3yI=
+20261104115510_create_youtube_deduplucation_table.sql h1:ssPQKm0+fuCkD5s+RzZorKrzYHAD9e48tz4blg1hv28=
+20261105225941_create_twitter_deduplication_table.sql h1:nxNP6+3oP+ogXNGAzJXVbywjk0M4DDZh4lVF/BS5gts=
