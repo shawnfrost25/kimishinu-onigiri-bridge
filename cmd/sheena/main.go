@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
@@ -48,12 +49,13 @@ func main() {
 	y := youtube.New(youtubeAPI, webhookURL, queries, httpClient)
 
 	r := chi.NewRouter()
+	r.Use(middleware.Recoverer)
 	r.Use(auth.LoggerMiddleware)
 
 	r.Group(func(r chi.Router) {
-		r.Route("/youtube", func(r chi.Router) {
-			r.Post("/fetch", y.IchijinshaPV)
-		})
+		for _, channel := range youtube.Channels {
+			r.Post("/youtube/"+channel.HandlerName, y.FetchKimishinu(channel))
+		}
 	})
 
 	const addr string = "0.0.0.0:8080"
