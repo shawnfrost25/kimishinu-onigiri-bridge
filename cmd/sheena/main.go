@@ -4,6 +4,7 @@ import (
 	"context"
 	"kimishinu/internal/auth"
 	db "kimishinu/internal/db/sqlc"
+	"kimishinu/internal/handler/twitter"
 	"kimishinu/internal/handler/youtube"
 	"kimishinu/internal/lib"
 	"log/slog"
@@ -31,6 +32,10 @@ func main() {
 	if webhookURL == "" {
 		panic("Missing 'WEBHOOK_URL'")
 	}
+	twitterAPI := os.Getenv("TWITTER_API")
+	if twitterAPI == "" {
+		panic("Missing 'TWITTER_API' inside .env")
+	}
 
 	conf, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
@@ -47,6 +52,7 @@ func main() {
 	httpClient := http.Client{}
 
 	y := youtube.New(youtubeAPI, webhookURL, queries, httpClient)
+	t := twitter.New(twitterAPI, queries, webhookURL, httpClient)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
@@ -54,7 +60,10 @@ func main() {
 
 	r.Group(func(r chi.Router) {
 		for _, channel := range youtube.Channels {
-			r.Post("/youtube/"+channel.HandlerName, y.FetchKimishinu(channel))
+			r.Post("/youtube/"+channel.HandlerName, y.YTKimishinu(channel))
+		}
+		for _, user := range twitter.Users {
+			r.Post("/twitter/"+user.Handlername, t.TWTKimishinu(user))
 		}
 	})
 

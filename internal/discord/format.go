@@ -2,8 +2,8 @@ package discord
 
 import (
 	"fmt"
-
 	"github.com/bytedance/sonic"
+	"strings"
 )
 
 const mimi string = "https://cdn.jsdelivr.net/gh/shawnfrost25/kimishinu-onigiri-bridge@main/assets/Mimi.jpeg"
@@ -13,6 +13,7 @@ const seiran string = "https://cdn.jsdelivr.net/gh/shawnfrost25/kimishinu-onigir
 const sheenaRoommate string = "https://cdn.jsdelivr.net/gh/shawnfrost25/kimishinu-onigiri-bridge@main/assets/Sheena_Roommate.jpeg"
 
 const yturl string = "https://www.youtube.com/watch?v="
+const twturl string = "https://fxtwitter.com/%s/status/%s"
 
 func ConvertToDiscordFormat(source string, identifier string) ([]byte, error) {
 	var finalUrl string
@@ -23,6 +24,13 @@ func ConvertToDiscordFormat(source string, identifier string) ([]byte, error) {
 		finalUrl = fmt.Sprintf("Mimi found a new **KimiShinu** drop. Don't pretend you weren't waiting for this. Just copy and share with others!!\n\n%s%s", yturl, identifier)
 		icon = mimi
 		username = "Mimi Kagari"
+	case "twitter":
+		parts := strings.SplitN(identifier, "_", 2)
+		finalUrl = fmt.Sprintf(twturl, parts[0], parts[1])
+		icon = sheena
+		username = "Sheena Totsuki"
+	default:
+		return nil, fmt.Errorf("invalid source: %s", source)
 	}
 
 	b := DiscordFormat{

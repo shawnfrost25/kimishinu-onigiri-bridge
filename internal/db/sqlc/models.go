@@ -4,6 +4,10 @@
 
 package db
 
+type Twitter struct {
+	ID string
+}
+
 type Youtube struct {
 	ID string
 }
