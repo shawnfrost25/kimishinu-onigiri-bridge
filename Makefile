@@ -1,11 +1,11 @@
-Update ?= <error>
+FILE ?= <error>
 PSQL_Password ?= <error>
 PSQL_Database ?= <error>
 
 .PHONY: atlas-new atlas-apply test test-race
 
 atlas-new:
-	atlas migrate diff ${Update} --to "file://internal/db/schema.sql" --dir "file://internal/db/migrations" --dev-url "docker://postgres/18/dev"
+	atlas migrate diff ${FILE} --to "file://internal/db/schema.sql" --dir "file://internal/db/migrations" --dev-url "docker://postgres/18/dev"
 
 atlas-apply:
 	atlas migrate apply --dir "file://internal/db/migrations" --url "postgres://postgres:${PSQL_Password}@0.0.0.0:5432/${PSQL_Database}?sslmode=disable"
