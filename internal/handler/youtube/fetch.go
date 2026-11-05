@@ -22,7 +22,7 @@ type Channel struct {
 	HandlerName string
 }
 
-var keywords = []string{"きみが死ぬまで恋をしたい", "I Want To Love You Till Your Dying Day", "Kimi ga Shinu made Koi wo Shitai", "KimiShinu", "きみ死ぬ"}
+var keywords = []string{"きみが死ぬまで恋をしたい", "iwanttoloveyoutillyourdyingday", "kimigashinumadekoiwoshitai", "kimishinu", "きみ死ぬ"}
 
 var Channels = []Channel{
 	{PlaylistId: "UU2QDgMJWRQHEJYyVX3Rt08w", ChannelName: "Ichijinsha PV", Keywords: keywords, HandlerName: "ichijinsha"},
@@ -31,8 +31,9 @@ var Channels = []Channel{
 }
 
 func match(text string, keywords []string) bool {
+	normalizedText := lib.Normalize(text)
 	for _, keyword := range keywords {
-		if strings.Contains(strings.ToLower(text), strings.ToLower(keyword)) {
+		if strings.Contains(normalizedText, keyword) {
 			return true
 		}
 	}
@@ -42,12 +43,12 @@ func match(text string, keywords []string) bool {
 
 const URI = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=10&playlistId="
 
-func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
+func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		polish := func(s string) string {
 			return strings.ToLower(strings.ReplaceAll(s, " ", "_"))
 		}
-		logger := slog.With(slog.String("op", "fetch_kimishinu"), slog.String("channel", polish(ch.ChannelName)))
+		logger := slog.With(slog.String("op", "yt_kimishinu_fetch"), slog.String("channel", polish(ch.ChannelName)))
 		logger.Debug(fmt.Sprintf("Fetching %s from Youtube API", ch.ChannelName))
 		trace, ok := auth.GetTrace(r.Context(), w)
 		if !ok {
@@ -55,7 +56,7 @@ func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
 		}
 
 		op := func(reason string) string {
-			return polish(ch.ChannelName) + reason
+			return ch.HandlerName + "_" + reason
 		}
 
 		finalURI := URI + ch.PlaylistId
@@ -63,7 +64,7 @@ func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
 		reqI, err := http.NewRequest(http.MethodGet, finalURI, nil)
 		if err != nil {
 			err = failure.Wrap("youtube.http.fetch.request.create", err)
-			errlog.Internal(*logger, w, op("_request_create"), failure.InternalGeneralError, err, trace)
+			errlog.Internal(*logger, w, op("request_create"), failure.InternalGeneralError, err, trace)
 			return
 		}
 		reqI.Header.Set("Accept", "application/json")
@@ -73,15 +74,15 @@ func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
 		respI, err := y.HttpClient.Do(reqI)
 		if err != nil {
 			err = failure.Wrap("youtube.http.fetch.request.send", err)
-			errlog.Internal(*logger, w, op("_request_send"), failure.InternalGeneralError, err, trace)
+			errlog.Internal(*logger, w, op("request_send"), failure.InternalGeneralError, err, trace)
 			return
 		}
 		defer respI.Body.Close()
 
 		if respI.StatusCode != http.StatusOK {
-			err = failure.InternalGeneral(op("_request_status_code"), fmt.Sprintf("unexpected status code: %d", respI.StatusCode))
+			err = failure.InternalGeneral(op("request_status_code"), fmt.Sprintf("unexpected status code: %d", respI.StatusCode))
 			err = failure.Wrap("youtube.http.fetch.request.status_code", err)
-			errlog.Internal(*logger, w, op("_request_status_code"), failure.InternalGeneralError, err, trace)
+			errlog.Internal(*logger, w, op("request_status_code"), failure.InternalGeneralError, err, trace)
 			return
 		}
 
@@ -90,14 +91,14 @@ func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
 		err = sonic.ConfigDefault.NewDecoder(respI.Body).Decode(&videoResp)
 		if err != nil {
 			err = failure.Wrap("youtube.http.fetch.response.decode", err)
-			errlog.Internal(*logger, w, op("_response_decode"), failure.InternalGeneralError, err, trace)
+			errlog.Internal(*logger, w, op("response_decode"), failure.InternalGeneralError, err, trace)
 			return
 		}
 
 		if len(videoResp.Items) == 0 {
-			err = failure.InternalGeneral(op("_response"), "no items found in response")
+			err = failure.InternalGeneral(op("response"), "no items found in response")
 			err = failure.Wrap("youtube.http.fetch.response.no_items", err)
-			errlog.Http(*logger, w, op("_response_no_items"), failure.NotFoundError, err, trace)
+			errlog.Http(*logger, w, op("response_no_items"), failure.NotFoundError, err, trace)
 			return
 		}
 
@@ -110,18 +111,19 @@ func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
 			insertedRows, err := y.Queries.InsertYoutubeId(context.Background(), item.ContentDetails.VideoId)
 			if err != nil {
 				err = failure.Wrap("youtube.database.video.id.deduplicate.check", err)
-				errlog.Database(*logger, w, "video_id_deduplicate", trace, err)
+				errlog.Database(*logger, w, op("deduplicate_check"), trace, err)
 				return
 			}
 
 			if insertedRows == 0 {
+				logger.Debug("Video already exists in database, skipping", slog.String("video_id", item.ContentDetails.VideoId))
 				continue
 			}
 
 			bodyBytes, err := discord.ConvertToDiscordFormat("youtube", item.ContentDetails.VideoId)
 			if err != nil {
 				err = failure.Wrap(fmt.Sprintf("youtube.json.%s.response.body.marshal", polish(ch.ChannelName)), err)
-				errlog.Json(*logger, w, op("_response_body_marshal"), trace, err)
+				errlog.Json(*logger, w, op("response_body_marshal"), trace, err)
 				return
 			}
 
