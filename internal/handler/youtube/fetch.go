@@ -1,6 +1,7 @@
 package youtube
 
 import (
+	"context"
 	"fmt"
 	"kimishinu/internal/auth"
 	"kimishinu/internal/discord"
@@ -65,6 +66,7 @@ func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
 			errlog.Internal(*logger, w, op("_request_create"), failure.InternalGeneralError, err, trace)
 			return
 		}
+		reqI.Header.Set("Accept", "application/json")
 		reqI.Header.Set("X-Goog-Api-Key", y.ApiKey)
 
 		logger.Debug("Sending request to Youtube API", slog.String("url", finalURI))
@@ -95,13 +97,24 @@ func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
 		if len(videoResp.Items) == 0 {
 			err = failure.InternalGeneral(op("_response"), "no items found in response")
 			err = failure.Wrap("youtube.http.fetch.response.no_items", err)
-			errlog.Internal(*logger, w, op("_response_no_items"), failure.InternalGeneralError, err, trace)
+			errlog.Http(*logger, w, op("_response_no_items"), failure.NotFoundError, err, trace)
 			return
 		}
 
 		logger.Debug("Processing items from Youtube API response", slog.Int("item_count", len(videoResp.Items)))
 		for _, item := range videoResp.Items {
 			if !match(item.Snippet.Title, ch.Keywords) {
+				continue
+			}
+
+			insertedRows, err := y.Queries.InsertYoutubeId(context.Background(), item.ContentDetails.VideoId)
+			if err != nil {
+				err = failure.Wrap("youtube.database.video.id.deduplicate.check", err)
+				errlog.Database(*logger, w, "video_id_deduplicate", trace, err)
+				return
+			}
+
+			if insertedRows == 0 {
 				continue
 			}
 
@@ -123,6 +136,6 @@ func (y *Youtube) FetchKimishinu(ch Channel) http.HandlerFunc {
 		}
 
 		logger.Info("successfully sent data to discord")
-		lib.Pretty(w, http.StatusOK, nil)
+		lib.Pretty(w, http.StatusNoContent, nil)
 	}
 }

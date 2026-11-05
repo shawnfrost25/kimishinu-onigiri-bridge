@@ -1,0 +1,536 @@
+{
+    "kind": "youtube#playlistItemListResponse",
+    "etag": "BM6BLfG4reW4CpoWWhjlUuUN-LA",
+    "nextPageToken": "EAAaHlBUOkNBb2lFREEwT1Rnd01rWTVOekkyTkVVMU1VVQ",
+    "items": [
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "kA-8ZKkPPrF9wHGIq-qBYVc5_hw",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3LkVPUVNVVERyWnNj",
+            "snippet": {
+                "publishedAt": "2026-11-05T10:30:36Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "【#おにまい】#AKIHABARAゲーマーズ本店 にてTVアニメPOP UP SHOP開催中🌷#いちじんちゃん もお邪魔してきました🐭 #一迅社  #お兄ちゃんはおしまい #ゲーマーズ #shorts",
+                "description": "「お兄ちゃんはおしまい！ POP UP SHOP in ゲーマーズ」好評開催中🌷\n\n一迅社宣伝マスコット「いちじんちゃん」のパペットが書店さんを訪問チュー🐭\n\nコミックスは第1～11巻まで好評発売中‼\n原作もあわせて是非チェックよろしくお願いします✨\n\n期間📅～2026/11/8(日)まで\n場所📍AKIHABARAゲーマーズ本店7F\n\n▼詳細はこちら\nhttps://www.gamers.co.jp/contents/event_fair/detail.php?id=7910\n\n―――――――――――――――――――――――\n\n◆原作情報◆\n『お兄ちゃんはおしまい！』（著：ねことうふ）\n\n月刊ComicREXにて大好評連載中！\nコミックス第1巻～第11巻＆アンソロジー第1巻～第8巻好評発売中！\n\nお試し読み：https://ichicomi.com/episode/2550912965923202789\n\n第11巻（通常版）：https://www.amazon.co.jp/dp/4758099081\n第11巻（特装版）：https://www.amazon.co.jp/dp/475809909X\nアンソロジーコミック8巻：https://amzn.asia/d/0ekx3RjP\n\n©ねことうふ／一迅社\n\n#お兄ちゃんはおしまい #おにまい \n―――――――――――――――――――――――\n\n「いちじんちゃん」は一迅社20周年を記念して2025年3月に誕生した、一迅社宣伝マスコットキャラクターです🐭\n※キャラクターデザインは、当社内にて行われたコンテストで決定しました。\n\n＼いちじんチャンネルもチェック✅／\n▼「一迅社20周年記念番組 いちじんチャンネル～すごろく大作戦～」全24回公開チュー🐭\nhttps://youtube.com/playlist?list=PLSGYjA-7iPwcP4TyKVPK6TYOGSA-x11Is&si=zWBdOyjsj9u0mwSK\n\n＼一迅社20周年企画で「社歌」を制作しました🌟／\n▼「一迅社社歌 ～20th edition～」MVはこちら▼\nhttps://youtu.be/07FlI2I2h0c\n\n＼いちじんちゃんのパペットができるまで✨／\n▼制作現場に密着！メイキング動画はこちら▼\nhttps://youtube.com/shorts/IKE4P2EcvGk\n\n＼いちじんちゃんのLINEスタンプ発売チュー🐭／\nhttps://store.line.me/stickershop/product/33135274/ja\n\n＼いちじんちゃんのTikTokアカウントが始動‼️／\nhttps://www.tiktok.com/@ichijin_chan\n\n―――――――――――――――――――――――\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝X：https://x.com/ichijinsha_info\n一迅社note：https://note.com/ichijinsha_info/\n一迅プラス：https://ichicomi.com/",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/EOQSUTDrZsc/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/EOQSUTDrZsc/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/EOQSUTDrZsc/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/EOQSUTDrZsc/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/EOQSUTDrZsc/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 0,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "EOQSUTDrZsc"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "EOQSUTDrZsc",
+                "videoPublishedAt": "2026-11-05T10:30:36Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "yTpNGpxnfZJZz6p-qaaEHe19lfk",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3LnM1Wkxvc3M5OTU0",
+            "snippet": {
+                "publishedAt": "2026-11-05T09:00:06Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "【#ふつつかな悪女】#紀伊國屋書店 池袋店にて、TVアニメPOP UP開催中🦋#いちじんちゃん もお邪魔してきました🐭 #一迅社  #shorts",
+                "description": "「ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～ POP UP CORNER in 紀伊國屋書店 池袋店」好評開催中🦋\n\n一迅社宣伝マスコット「いちじんちゃん」のパペットが書店さんを訪問チュー🐭\n\n原作ノベル＆コミカライズも好評発売中‼️\nぜひチェックよろしくお願いします✨\n\n期間📅～2026/11/8(日)まで\n場所📍紀伊國屋書店 池袋店\n\n▼詳細＆通販はこちら\nhttps://eeo.today/store/101/title/8240\n\n―――――――――――――――――――――――\n\n◆ノベル情報◆\n一迅社ノベルス\n『ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～』\n(著：中村颯希／イラスト：ゆき哉)\n[特設サイト]：https://www.ichijinsha.co.jp/novels/futsutsukana/\n[13巻]：https://amzn.asia/d/09XFxg6C\n\n◆コミカライズ情報◆\nZERO-SUMコミックス\n『ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～』\n(コミック：尾羊英／原作：中村颯希／キャラクター原案：ゆき哉)\n[ゼロサムオンライン]：https://zerosumonline.com/detail/futsuakujo\n[最新11巻 通常版]：https://amzn.asia/d/0iEw7tod\n[最新11巻 特装版]：https://amzn.asia/d/0aZli5nd\n\n[作品紹介PV]：\n【5分でわかる】『ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～』\nhttps://youtu.be/0gIYQBFFYSE?si=A95aLjDpBoG9WkXV\n\n◆TVアニメ情報◆\n2027年1月第2クール放送決定📺\nTVアニメ公式ホームページ：https://futsutsuka.net/\nTVアニメ公式X（旧：Twitter）：https://x.com/futsutsuka_PR\nTVアニメ公式TikTok：  / futsutsuka_pr_official   \n\n©中村颯希・ゆき哉／一迅社\n©尾羊英・中村颯希・ゆき哉／一迅社\n©中村颯希・一迅社／「ふつつかな悪女」製作委員会\n\n#ふつつかな悪女\n―――――――――――――――――――――――\n\n「いちじんちゃん」は一迅社20周年を記念して2025年3月に誕生した、一迅社宣伝マスコットキャラクターです🐭\n※キャラクターデザインは、当社内にて行われたコンテストで決定しました。\n\n＼いちじんチャンネルもチェック✅／\n▼「一迅社20周年記念番組 いちじんチャンネル～すごろく大作戦～」全24回公開チュー🐭\nhttps://youtube.com/playlist?list=PLSGYjA-7iPwcP4TyKVPK6TYOGSA-x11Is&si=zWBdOyjsj9u0mwSK\n\n＼一迅社20周年企画で「社歌」を制作しました🌟／\n▼「一迅社社歌 ～20th edition～」MVはこちら▼\nhttps://youtu.be/07FlI2I2h0c\n\n＼いちじんちゃんのパペットができるまで✨／\n▼制作現場に密着！メイキング動画はこちら▼\nhttps://youtube.com/shorts/IKE4P2EcvGk\n\n＼いちじんちゃんのLINEスタンプ発売チュー🐭／\nhttps://store.line.me/stickershop/product/33135274/ja\n\n＼いちじんちゃんのTikTokアカウントが始動‼️／\nhttps://www.tiktok.com/@ichijin_chan\n\n―――――――――――――――――――――――\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝X：https://x.com/ichijinsha_info\n一迅社note：https://note.com/ichijinsha_info/\n一迅プラス：https://ichicomi.com/",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/s5ZLoss9954/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/s5ZLoss9954/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/s5ZLoss9954/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/s5ZLoss9954/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/s5ZLoss9954/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 1,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "s5ZLoss9954"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "s5ZLoss9954",
+                "videoPublishedAt": "2026-11-05T09:00:06Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "Y7vVP4N8YV_eaUnbXUOMqZ8YMpY",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3LlBEbDgyRzVRLXo0",
+            "snippet": {
+                "publishedAt": "2026-10-15T08:00:11Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "より離れた書店に向かうべく沖縄へ🌴那覇、石垣島、波照間島と与那国島まで⁉️#いちじんちゃん #一迅社 #いちじんチャンネル #一迅社20周年 #shorts",
+                "description": "2025年3月4日から始まった、一迅社20周年記念番組「いちじんチャンネル～すごろく大作戦～」の1年間を振り返り🌟\n\n昨年の今日(10月15日)は第⑮回公開✨\n【いちじんチャンネル第15回】極地探訪 沖縄編！一迅社からより離れた書店へ行こう！さらに波照間島と与那国島にも!?\nhttps://youtu.be/YDsORj4Yr0g\n\n―――――――――――――――――――――――\n\n＼いいね、チャンネル登録よろしくね！／\n▼全24回公開チュー🐭再生リストはこちら▼\nhttps://youtube.com/playlist?list=PLSGYjA-7iPwcP4TyKVPK6TYOGSA-x11Is&si=zWBdOyjsj9u0mwSK\n\n「いちじんチャンネル」とは、一迅社20周年を記念して誕生した「いちじんちゃん」が、全力で様々な企画に挑戦するYouTube番組です。\n※キャラクターデザインは、当社内にて行われたコンテストで決定しました。\n※いちじんちゃんの中身は社員です。\n\nナレーション：大野智敬 さん\nhttps://x.com/tomohiro__ohno\n\n一賽舎をイメージしたサイコロを使って、スタジオDNA（遺伝子）をモチーフとしたデザインのすごろくを実施！\nどのような状況においても、停止したマスのお題を（無理にでも）絶対に実行していく熱意と粘り強さ、そして発想力を体現する事で、今後の当社の意気込みを見せてまいります！\n\n「ダメでもやめない、出来るまでやるから」\n「ドン滑ってもやめない、この一年間は」\n\nこれは、そんな勢いだけで疾り続ける黒歴史(ものがたり)」です！\n\n―――――――――――――――――――――――\n\n＼一迅社20周年企画で「社歌」を制作しました🌟／\n▼「一迅社社歌 ～20th edition～」MVはこちら▼\nhttps://youtu.be/07FlI2I2h0c\n\n＼社歌ができるまで✨楽曲制作・MV撮影の裏側もチェック👀／\n▼メイキング映像はこちら▼\nhttps://youtu.be/l1JT5Oj043g\n\n＼「一迅社社歌」ストリーミング配信スタート♪／\n▼各音楽配信サイトのリンクはこちら🔗\nhttps://lnk.to/ICHIJINSHA\n\n▼YouTube Musicで再生🎵\nhttps://music.youtube.com/playlist?list=OLAK5uy_m9NHpyncMqd6jFDrTpQV5OLAzDb7zjpJM\n\n―――――――――――――――――――――――\n\n＼いちじんちゃんのLINEスタンプ発売チュー🐭／\nhttps://store.line.me/stickershop/product/33135274/ja\n\n＼いちじんちゃんの「ゆるナビ」ページもチェック／\nhttps://yurugp.jp/characters/4386\n\n＼いちじんちゃんのTikTokアカウントが始動！／\nhttps://www.tiktok.com/@ichijin_chan\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝X：https://x.com/ichijinsha_info\n一迅社note：https://note.com/ichijinsha_info/\n一迅プラス：https://ichicomi.com/\n\n―――――――――――――――――――――――\n\n#一迅社  #いちじんちゃん #いちじんチャンネル #一迅社20周年 #大野智敬",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/PDl82G5Q-z4/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/PDl82G5Q-z4/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/PDl82G5Q-z4/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/PDl82G5Q-z4/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/PDl82G5Q-z4/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 2,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "PDl82G5Q-z4"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "PDl82G5Q-z4",
+                "videoPublishedAt": "2026-10-15T08:00:11Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "0ofVR9j0mC3KysiKXx7jy-FG0pY",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3LmxhRWFvejNlT2gw",
+            "snippet": {
+                "publishedAt": "2026-10-09T08:00:29Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "【#ふつつかな悪女】#書泉ブックタワー にて、TVアニメPOP UP SHOP開催中🦋#いちじんちゃん もお邪魔してきました🐭 #一迅社  #書泉 #shorts",
+                "description": "「ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～ POP UP SHOP presented by TOHO animationin 書泉ブックタワー」好評開催中🦋\n\n原作ノベル13巻＆コミカライズ11巻（通常版＆特装版）も好評発売中‼️\n同じく8階にて展開されておりますのでぜひチェックよろしくお願いします✨\n\n期間📅～10/14(水) 11：00～20：00\n場所🏢書泉ブックタワー8F POPUPスペース\n\n▼詳細はこちら\nhttps://www.shosen.co.jp/event/45558/\n\n―――――――――――――――――――――――\n\n◆ノベル情報◆\n一迅社ノベルス\n『ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～』\n(著：中村颯希／イラスト：ゆき哉)\n[特設サイト]：https://www.ichijinsha.co.jp/novels/futsutsukana/\n[13巻]：https://amzn.asia/d/09XFxg6C\n\n◆コミカライズ情報◆\nZERO-SUMコミックス\n『ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～』\n(コミック：尾羊英／原作：中村颯希／キャラクター原案：ゆき哉)\n[ゼロサムオンライン]：https://zerosumonline.com/detail/futsuakujo\n[最新11巻 通常版]：https://amzn.asia/d/0iEw7tod\n[最新11巻 特装版]：https://amzn.asia/d/0aZli5nd\n\n[作品紹介PV]：\n【5分でわかる】『ふつつかな悪女ではございますが ～雛宮蝶鼠とりかえ伝～』\nhttps://youtu.be/0gIYQBFFYSE?si=A95aLjDpBoG9WkXV\n\n◆TVアニメ情報◆\n2027年1月第2クール放送決定📺\nTVアニメ公式ホームページ：https://futsutsuka.net/\nTVアニメ公式X（旧：Twitter）：https://x.com/futsutsuka_PR\nTVアニメ公式TikTok：  / futsutsuka_pr_official   \n\n©中村颯希・ゆき哉／一迅社\n©尾羊英・中村颯希・ゆき哉／一迅社\n©中村颯希・一迅社／「ふつつかな悪女」製作委員会\n\n#ふつつかな悪女\n―――――――――――――――――――――――\n\n「いちじんちゃん」は一迅社20周年を記念して2025年3月に誕生した、一迅社宣伝マスコットキャラクターです🐭\n※キャラクターデザインは、当社内にて行われたコンテストで決定しました。\n\n＼いちじんチャンネルもチェック✅／\n▼「一迅社20周年記念番組 いちじんチャンネル～すごろく大作戦～」全24回公開チュー🐭\nhttps://youtube.com/playlist?list=PLSGYjA-7iPwcP4TyKVPK6TYOGSA-x11Is&si=zWBdOyjsj9u0mwSK\n\n＼一迅社20周年企画で「社歌」を制作しました🌟／\n▼「一迅社社歌 ～20th edition～」MVはこちら▼\nhttps://youtu.be/07FlI2I2h0c\n\n＼いちじんちゃんのパペットができるまで✨／\n▼制作現場に密着！メイキング動画はこちら▼\nhttps://youtube.com/shorts/IKE4P2EcvGk\n\n＼いちじんちゃんのLINEスタンプ発売チュー🐭／\nhttps://store.line.me/stickershop/product/33135274/ja\n\n＼いちじんちゃんのTikTokアカウントが始動‼️／\nhttps://www.tiktok.com/@ichijin_chan\n\n―――――――――――――――――――――――\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝X：https://x.com/ichijinsha_info\n一迅社note：https://note.com/ichijinsha_info/\n一迅プラス：https://ichicomi.com/",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/laEaoz3eOh0/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/laEaoz3eOh0/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/laEaoz3eOh0/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/laEaoz3eOh0/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/laEaoz3eOh0/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 3,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "laEaoz3eOh0"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "laEaoz3eOh0",
+                "videoPublishedAt": "2026-10-09T08:00:29Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "khlDHhoTkCP3_RZ0uEinx7EI_T8",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3LlZDY1QtZTJFYVgw",
+            "snippet": {
+                "publishedAt": "2026-10-08T08:00:39Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "飛距離の伸びが売上の伸び⁉️社業の発展を願って全力で遠投しました⚾#一迅社 #いちじんちゃん #いちじんチャンネル #一迅社20周年 #shorts",
+                "description": "2025年3月4日から始まった、一迅社20周年記念番組「いちじんチャンネル～すごろく大作戦～」の1年間を振り返り🌟\n\n2025年10月の1つ目の動画は第⑭回🎉\n【いちじんチャンネル第14回】着ぐるみ全力の遠投!?ボールの飛距離で社業の成長を祈りました。\nhttps://youtu.be/3RX8s0UNHNw\n\n＼いいね、チャンネル登録よろしくね！／\n▼全24回公開チュー🐭再生リストはこちら▼\nhttps://youtube.com/playlist?list=PLSGYjA-7iPwcP4TyKVPK6TYOGSA-x11Is&si=zWBdOyjsj9u0mwSK\n\n「いちじんチャンネル」とは、一迅社20周年を記念して誕生した「いちじんちゃん」が、全力で様々な企画に挑戦するYouTube番組です。\n※キャラクターデザインは、当社内にて行われたコンテストで決定しました。\n※いちじんちゃんの中身は社員です。\n\nナレーション：大野智敬 さん\nhttps://x.com/tomohiro__ohno\n\n一賽舎をイメージしたサイコロを使って、スタジオDNA（遺伝子）をモチーフとしたデザインのすごろくを実施！\nどのような状況においても、停止したマスのお題を（無理にでも）絶対に実行していく熱意と粘り強さ、そして発想力を体現する事で、今後の当社の意気込みを見せてまいります！\n\n「ダメでもやめない、出来るまでやるから」\n「ドン滑ってもやめない、この一年間は」\n\nこれは、そんな勢いだけで疾り続ける黒歴史(ものがたり)」です！\n\n―――――――――――――――――――――――\n\n＼一迅社20周年企画で「社歌」を制作しました🌟／\n▼「一迅社社歌 ～20th edition～」MVはこちら▼\nhttps://youtu.be/07FlI2I2h0c\n\n＼社歌ができるまで✨楽曲制作・MV撮影の裏側もチェック👀／\n▼メイキング映像はこちら▼\nhttps://youtu.be/l1JT5Oj043g\n\n＼「一迅社社歌」ストリーミング配信スタート♪／\n▼各音楽配信サイトのリンクはこちら🔗\nhttps://lnk.to/ICHIJINSHA\n\n▼YouTube Musicで再生🎵\nhttps://music.youtube.com/playlist?list=OLAK5uy_m9NHpyncMqd6jFDrTpQV5OLAzDb7zjpJM\n\n―――――――――――――――――――――――\n\n＼いちじんちゃんのLINEスタンプ発売チュー🐭／\nhttps://store.line.me/stickershop/product/33135274/ja\n\n＼いちじんちゃんの「ゆるナビ」ページもチェック／\nhttps://yurugp.jp/characters/4386\n\n＼いちじんちゃんのTikTokアカウントが始動！／\nhttps://www.tiktok.com/@ichijin_chan\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝X：https://x.com/ichijinsha_info\n一迅社note：https://note.com/ichijinsha_info/\n一迅プラス：https://ichicomi.com/\n\n―――――――――――――――――――――――\n\n#一迅社  #いちじんちゃん #いちじんチャンネル #一迅社20周年 #大野智敬",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/VCcT-e2EaX0/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/VCcT-e2EaX0/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/VCcT-e2EaX0/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/VCcT-e2EaX0/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/VCcT-e2EaX0/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 4,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "VCcT-e2EaX0"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "VCcT-e2EaX0",
+                "videoPublishedAt": "2026-10-08T08:00:39Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "zUBe_5UNxrxy8Lc9MlZmQDEal40",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3LndBSFVCemNBWkNv",
+            "snippet": {
+                "publishedAt": "2026-10-02T09:00:25Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "必勝祈願🔥昨年の得票数を超えられるか‼️いよいよ #ゆるバース2026 最終決戦💪 #一迅社  #いちじんちゃん #shorts",
+                "description": "一迅社宣伝マスコット「いちじんちゃん」が、ゆるキャラの総選挙「ゆるバース2026」 に出場チュー🐭\n\n前回の自分(2897票)に勝てるのか⁉️\n▼いちじんちゃんの投票ページ📢10月3日まで！\nhttps://yurugp.jp/characters/4386\n\n▼いちじんちゃんが「ゆるバース2026」決選投票に出場します！\nステージ参加＆大野智敬さんがスペシャルゲストに決定！\nブースも両日出展します！\n詳細はこちらをチェック👇\nhttps://note.com/ichijinsha_info/n/n5dfa039a8e6d\n\n▼その他、ゆるバース企画内容はこちら👇\nhttps://note.com/ichijinsha_info/n/n9de09f57e646\n\n―――――――――――――――――――――――\n\n「いちじんちゃん」は一迅社20周年を記念して2025年3月に誕生した、一迅社宣伝マスコットキャラクターです🐭\n※キャラクターデザインは、当社内にて行われたコンテストで決定しました。\n※いちじんちゃんの中身は社員です。\n\n「いちじんチャンネル」は、いちじんちゃんが全力で様々な企画に挑戦するYouTube番組です。\n\n＼いいね、チャンネル登録よろしくね！／\n▼「一迅社20周年記念番組 いちじんチャンネル～すごろく大作戦～」全24回公開チュー🐭\nhttps://youtube.com/playlist?list=PLSGYjA-7iPwcP4TyKVPK6TYOGSA-x11Is&si=zWBdOyjsj9u0mwSK\n\n―――――――――――――――――――――――\n\n＼一迅社20周年企画で「社歌」を制作しました🌟／\n▼「一迅社社歌 ～20th edition～」MVはこちら▼\nhttps://youtu.be/07FlI2I2h0c\n\n＼社歌ができるまで✨楽曲制作・MV撮影の裏側もチェック👀／\n▼メイキング映像はこちら▼\nhttps://youtu.be/l1JT5Oj043g\n\n―――――――――――――――――――――――\n\n＼いちじんちゃんのLINEスタンプ発売チュー🐭／\nhttps://store.line.me/stickershop/product/33135274/ja\n\n＼いちじんちゃんのTikTokアカウントが始動！／\nhttps://www.tiktok.com/@ichijin_chan\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝X：https://x.com/ichijinsha_info\n一迅社note：https://note.com/ichijinsha_info/\n一迅プラス：https://ichicomi.com/\n\n―――――――――――――――――――――――\n\n#一迅社  #いちじんちゃん",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/wAHUBzcAZCo/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/wAHUBzcAZCo/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/wAHUBzcAZCo/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/wAHUBzcAZCo/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/wAHUBzcAZCo/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 5,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "wAHUBzcAZCo"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "wAHUBzcAZCo",
+                "videoPublishedAt": "2026-10-02T09:00:25Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "W4CxniTcVYRbuQ9b93mqwz9tu_g",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3Lnh6VzdUbkRaN1Fz",
+            "snippet": {
+                "publishedAt": "2026-10-01T10:00:32Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "2026撮影現場のドタバタ劇②【いびってこない義母と義姉】",
+                "description": "2026撮影現場のドタバタ劇②【いびってこない義母と義姉】\n\n『いびってこない義母と義姉』（著：おつじ）\nコミックス最新第10巻好評発売中！\n\n✼••┈┈┈┈••✼••┈┈┈┈••✼••┈┈┈┈••✼\n\n出演：こむぎ （動物プロ エムドッグス）\n\n協力：とやまソフトセンター\nhttps://www.youtube.com/@t-soft-center\n\n✼••┈┈┈┈••✼••┈┈┈┈••✼••┈┈┈┈••✼\n\n\n2026。\nワンちゃん、飼い主さん、撮影クルー。\n様々な感情が交錯する「いびってこない義母と義姉」一迅社CM撮影現場のドタバタ劇。\n\n\n＼「今日のグンちゃん」本編はこちら！／\nhttps://www.youtube.com/playlist?list=PLUEmmdf7qFpw\n\n\n✼••┈┈┈┈••✼••┈┈┈┈••✼••┈┈┈┈••✼\n\n\n『いびってこない義母と義姉』（著：おつじ）\n\n「comic POOL」にて好評連載中！\nhttps://comic.pixiv.net/works/7048\n\nコミックス最新第10巻好評発売中！\nhttps://amzn.asia/d/053j3O6S\n\n✼••┈┈┈┈••✼••┈┈┈┈••✼••┈┈┈┈••✼\nTVアニメ公式HP：https://ibikona-anime.com/\nTVアニメ公式Ｘ：https://x.com/ibikona_anime\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝 X：https://twitter.com/ichijinsha_info\ncomic POOL X：https://x.com/comic_pool\ncomic POOL Tiktok：https://www.tiktok.com/@comic_pool\n\n©おつじ／一迅社\n\n#いびこな #いびこなアニメ #comic_pool",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/xzW7TnDZ7Qs/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/xzW7TnDZ7Qs/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/xzW7TnDZ7Qs/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/xzW7TnDZ7Qs/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/xzW7TnDZ7Qs/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    },
+                    "fhd": {
+                        "url": "https://i.ytimg.com/vi/xzW7TnDZ7Qs/fhddefault.jpg",
+                        "width": 1920,
+                        "height": 1080
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 6,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "xzW7TnDZ7Qs"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "xzW7TnDZ7Qs",
+                "videoPublishedAt": "2026-10-01T10:00:32Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "ySECu0Q7WNGwvIZ8GRGS6Z6jkSU",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3LjdlUEJDaERiUjRN",
+            "snippet": {
+                "publishedAt": "2026-09-30T15:00:18Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "【いびってこない義母と義姉】「今日のグンちゃん」一迅社CM12",
+                "description": "『いびってこない義母と義姉』（著：おつじ）\nコミックス最新第10巻好評発売中！\n\n✼••┈┈┈┈••✼••┈┈┈┈••✼••┈┈┈┈••✼\n\n鴻蔵美冶：CV #鈴木日菜\n鴻蔵てる：CV #くじら\nグングニル：こむぎ （動物プロ エムドッグス）\n\n✼••┈┈┈┈••✼••┈┈┈┈••✼••┈┈┈┈••✼\n\nとある名家の庶子である美冶は、\n母の死をきっかけに本家の鴻蔵家に引き取られることになりました。\nそこで待ち受けていたのは恐ろしい義母と義姉のはずが――!?\n\n✼••┈┈┈┈••✼••┈┈┈┈••✼••┈┈┈┈••✼\n\n『いびってこない義母と義姉』（著：おつじ）\n\n「comic POOL」にて好評連載中！\nhttps://comic.pixiv.net/works/7048\n\nコミックス最新第10巻好評発売中！\nhttps://amzn.asia/d/053j3O6S\n\n✼••┈┈┈┈••✼••┈┈┈┈••✼••┈┈┈┈••✼\nTVアニメ公式HP：https://ibikona-anime.com/\nTVアニメ公式Ｘ：https://x.com/ibikona_anime\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝 X：https://twitter.com/ichijinsha_info\ncomic POOL X：https://x.com/comic_pool\ncomic POOL Tiktok：https://www.tiktok.com/@comic_pool\n\n©おつじ／一迅社\n\n#いびこな #いびこなアニメ #comic_pool",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/7ePBChDbR4M/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/7ePBChDbR4M/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/7ePBChDbR4M/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/7ePBChDbR4M/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/7ePBChDbR4M/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    },
+                    "qhd": {
+                        "url": "https://i.ytimg.com/vi/7ePBChDbR4M/qhddefault.jpg",
+                        "width": 2560,
+                        "height": 1440
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 7,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "7ePBChDbR4M"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "7ePBChDbR4M",
+                "videoPublishedAt": "2026-09-30T15:00:18Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "lSMTcNh2LCslmjFHAQM1O9vL7CM",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3LllpTHVKMFlmM09B",
+            "snippet": {
+                "publishedAt": "2026-09-30T12:00:24Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "【一迅プラス】『きみが死ぬまで恋をしたい』CM#13",
+                "description": "一迅社がお届けする公式Webマンガサイト「一迅プラス」です！\n\n異世界ファンタジー、ラブコメ、サスペンス、ホラー、百合、BL、TLなど多彩なジャンルの漫画が【無料】で読める！\nアニメ化したヒット作も多数連載中✨\n公式HP⇒https://ichicomi.com/\n公式X   ⇒https://x.com/ichicomi_info\n\n[ コミックス ]\n『きみが死ぬまで恋をしたい』(著：あおのなち)\nコミックス第1巻～第8巻好評発売中！\nコミックス第9巻&公式コミックアンソロジー2026年7月16日(木)発売！\n\n第9巻：https://www.amazon.co.jp/dp/4825100104\n公式コミックアンソロジー：https://www.amazon.co.jp/dp/4825100112\n\n◆❖◇◇❖◆◆❖◇◇❖◆◆❖◇◇❖\nTVアニメ公式HP：https://kimishinu-anime.com/\nTVアニメ公式Ｘ：  https://x.com/anime_kimishinu\n原作公式X：https://x.com/kimishinu\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝X：https://x.com/ichijinsha_info\nコミック百合姫X：https://x.com/yh_magazine\nコミック百合姫TikTok：  / comic_yurihime  \n◆❖◇◇❖◆◆❖◇◇❖◆◆❖◇◇❖\n\n©あおのなち／一迅社",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/YiLuJ0Yf3OA/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/YiLuJ0Yf3OA/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/YiLuJ0Yf3OA/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/YiLuJ0Yf3OA/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/YiLuJ0Yf3OA/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    },
+                    "fhd": {
+                        "url": "https://i.ytimg.com/vi/YiLuJ0Yf3OA/fhddefault.jpg",
+                        "width": 1920,
+                        "height": 1080
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 8,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "YiLuJ0Yf3OA"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "YiLuJ0Yf3OA",
+                "videoPublishedAt": "2026-09-30T12:00:24Z"
+            }
+        },
+        {
+            "kind": "youtube#playlistItem",
+            "etag": "k7O-ib01g8VbAbjwotZfdNZDNaw",
+            "id": "VVUyUURnTUpXUlFIRUpZeVZYM1J0MDh3Llc4b0gzdDFzNVJz",
+            "snippet": {
+                "publishedAt": "2026-09-30T09:00:10Z",
+                "channelId": "UC2QDgMJWRQHEJYyVX3Rt08w",
+                "title": "プライド人形からの激励🔥#ゆるバース 奮闘中の #いちじんちゃん とパペットコラボ🌹🐭 #ラス為 #一迅社 #shorts",
+                "description": "一迅社宣伝マスコット「いちじんちゃん」が、ゆるキャラの総選挙「ゆるバース2026」 に出場チュー🐭\n\nSTUDIO NOVAさんにて誕生したパペット同士ということで、\n『悲劇の元凶となる最強外道ラスボス女王は民の為に尽くします。』プライド人形とのコラボ動画です🌹🐭\n\n「ゆるバース2026」決選投票で奮闘する #いちじんちゃん の姿を予知したのかも💡❔\n\n▼いちじんちゃんの投票ページ📢10月3日まで！\nhttps://yurugp.jp/characters/4386\n\nオンラインにて、毎日無料で投票可能です💪応援よろしくお願いします✨\n\n▼いちじんちゃんが「ゆるバース2026」決選投票イベントに出場します！\nステージ参加＆大野智敬さんがスペシャルゲストに決定！\nブースも両日出展します！\n詳細はこちらを👇\nhttps://note.com/ichijinsha_info/n/n5dfa039a8e6d\n\n▼その他、いちじんちゃんのゆるバース企画内容もぜひチェック✅\nhttps://note.com/ichijinsha_info/n/n9de09f57e646\n\n―――――――――――――――――――――――\n\n\n◆『悲劇の元凶となる最強外道ラスボス女王は民の為に尽くします。』\nシリーズ累計発行部数180万部突破（※電子含む）のハイスペック悪役王女の転生ラスボス回避ファンタジー！！\n\n＊【ラス為】プライドInformation1【一迅社CM】\nhttps://youtu.be/jdxCt8vozWA\n\n＊【ラス為】ノベル第8巻発売記念PV\nhttps://youtu.be/QJ0qKM5Du1c?si=pc05M7F_eM17mS3s\n\nプライド人形のLINEスタンプ販売中🌹\n日常でも使いやすい♪撮り下ろし16種のスタンプです👀\nhttps://store.line.me/stickershop/product/33806472/ja\n\n―――――――――――――――――――――――\n\n「いちじんちゃん」は一迅社20周年を記念して2025年3月に誕生した、一迅社宣伝マスコットキャラクターです🐭\n※キャラクターデザインは、当社内にて行われたコンテストで決定しました。\n※いちじんちゃんの中身は社員です。\n\n「いちじんチャンネル」は、いちじんちゃんが全力で様々な企画に挑戦するYouTube番組です。\n\n＼いいね、チャンネル登録よろしくね！／\n▼「一迅社20周年記念番組 いちじんチャンネル～すごろく大作戦～」全24回公開チュー🐭\nhttps://youtube.com/playlist?list=PLSGYjA-7iPwcP4TyKVPK6TYOGSA-x11Is&si=zWBdOyjsj9u0mwSK\n\n―――――――――――――――――――――――\n\n＼一迅社20周年企画で「社歌」を制作しました🌟／\n▼「一迅社社歌 ～20th edition～」MVはこちら▼\nhttps://youtu.be/07FlI2I2h0c\n\n＼社歌ができるまで✨楽曲制作・MV撮影の裏側もチェック👀／\n▼メイキング映像はこちら▼\nhttps://youtu.be/l1JT5Oj043g\n\n―――――――――――――――――――――――\n\n＼いちじんちゃんのLINEスタンプ発売チュー🐭／\nhttps://store.line.me/stickershop/product/33135274/ja\n\n＼いちじんちゃんのTikTokアカウントが始動！／\nhttps://www.tiktok.com/@ichijin_chan\n\n一迅社公式HP：https://www.ichijinsha.co.jp/\n一迅社宣伝X：https://x.com/ichijinsha_info\n一迅社note：https://note.com/ichijinsha_info/\n一迅プラス：https://ichicomi.com/\n\n―――――――――――――――――――――――\n\n#一迅社  #いちじんちゃん\n#ラス為",
+                "thumbnails": {
+                    "default": {
+                        "url": "https://i.ytimg.com/vi/W8oH3t1s5Rs/default.jpg",
+                        "width": 120,
+                        "height": 90
+                    },
+                    "medium": {
+                        "url": "https://i.ytimg.com/vi/W8oH3t1s5Rs/mqdefault.jpg",
+                        "width": 320,
+                        "height": 180
+                    },
+                    "high": {
+                        "url": "https://i.ytimg.com/vi/W8oH3t1s5Rs/hqdefault.jpg",
+                        "width": 480,
+                        "height": 360
+                    },
+                    "standard": {
+                        "url": "https://i.ytimg.com/vi/W8oH3t1s5Rs/sddefault.jpg",
+                        "width": 640,
+                        "height": 480
+                    },
+                    "maxres": {
+                        "url": "https://i.ytimg.com/vi/W8oH3t1s5Rs/maxresdefault.jpg",
+                        "width": 1280,
+                        "height": 720
+                    }
+                },
+                "channelTitle": "ichijinshaPV",
+                "playlistId": "UU2QDgMJWRQHEJYyVX3Rt08w",
+                "position": 9,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": "W8oH3t1s5Rs"
+                },
+                "videoOwnerChannelTitle": "ichijinshaPV",
+                "videoOwnerChannelId": "UC2QDgMJWRQHEJYyVX3Rt08w"
+            },
+            "contentDetails": {
+                "videoId": "W8oH3t1s5Rs",
+                "videoPublishedAt": "2026-09-30T09:00:10Z"
+            }
+        }
+    ],
+    "pageInfo": {
+        "totalResults": 815,
+        "resultsPerPage": 10
+    }
+}
