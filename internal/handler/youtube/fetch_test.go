@@ -108,7 +108,7 @@ func y(t *testing.T, trip *MyTrip) *Server {
 	r.Group(func(r chi.Router) {
 		r.Use(auth.LoggerMiddleware)
 		for _, ch := range Channels {
-			r.Get("/youtube/"+ch.HandlerName, h.FetchKimishinu(ch))
+			r.Get("/youtube/"+ch.HandlerName, h.YTKimishinu(ch))
 		}
 	})
 

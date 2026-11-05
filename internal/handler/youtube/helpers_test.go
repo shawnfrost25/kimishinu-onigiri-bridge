@@ -29,7 +29,7 @@ func ServerNew(handler http.Handler, pool *pgxpool.Pool, queries *db.Queries) *S
 func (s *Server) do(t *testing.T, endpoint string, method string, body any) *httptest.ResponseRecorder {
 	t.Helper()
 	var b io.Reader
-	if body != nil || body == "" {
+	if body != nil {
 		bodyBytes, err := json.Marshal(body)
 		if err != nil {
 			t.Fatalf("Failed to marshal given body")

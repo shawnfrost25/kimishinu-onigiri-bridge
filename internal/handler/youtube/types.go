@@ -7,11 +7,6 @@ type Item struct {
 		ChannelId   string `json:"channelId"`
 		Title       string `json:"title"`
 		Description string `json:"description"`
-		Thumbnail   struct {
-			MaxResolution struct {
-				Url string `json:"url"`
-			} `json:"maxres"`
-		} `json:"thumbnails"`
 	} `json:"snippet"`
 	ContentDetails struct {
 		VideoId          string    `json:"videoId"`
