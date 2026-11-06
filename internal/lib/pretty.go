@@ -14,6 +14,9 @@ type Error struct {
 }
 
 func Pretty(w http.ResponseWriter, status int, data any) {
+	if w == nil {
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 
 	w.WriteHeader(status)
