@@ -9,47 +9,80 @@ import (
 	"context"
 )
 
-const insertMangaDexId = `-- name: InsertMangaDexId :execrows
+const insertMangaDexIds = `-- name: InsertMangaDexIds :many
 INSERT INTO mangadex(id)
-VALUES (
-    $1::text
-) ON CONFLICT (id) DO NOTHING
+SELECT unnest($1::text[])
+ON CONFLICT (id) DO NOTHING RETURNING id
 `
 
-func (q *Queries) InsertMangaDexId(ctx context.Context, id string) (int64, error) {
-	result, err := q.db.Exec(ctx, insertMangaDexId, id)
+func (q *Queries) InsertMangaDexIds(ctx context.Context, ids []string) ([]string, error) {
+	rows, err := q.db.Query(ctx, insertMangaDexIds, ids)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected(), nil
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-const insertTwitterId = `-- name: InsertTwitterId :execrows
+const insertTwitterIds = `-- name: InsertTwitterIds :many
 INSERT INTO twitter(id)
-VALUES (
-    $1::text
-) ON CONFLICT (id) DO NOTHING
+SELECT unnest($1::text[])
+ON CONFLICT (id) DO NOTHING RETURNING id
 `
 
-func (q *Queries) InsertTwitterId(ctx context.Context, id string) (int64, error) {
-	result, err := q.db.Exec(ctx, insertTwitterId, id)
+func (q *Queries) InsertTwitterIds(ctx context.Context, ids []string) ([]string, error) {
+	rows, err := q.db.Query(ctx, insertTwitterIds, ids)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected(), nil
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-const insertYoutubeId = `-- name: InsertYoutubeId :execrows
+const insertYoutubeIds = `-- name: InsertYoutubeIds :many
 INSERT INTO youtube(id)
-VALUES (
-    $1::text
-) ON CONFLICT (id) DO NOTHING
+SELECT unnest($1::text[])
+ON CONFLICT (id) DO NOTHING RETURNING id
 `
 
-func (q *Queries) InsertYoutubeId(ctx context.Context, id string) (int64, error) {
-	result, err := q.db.Exec(ctx, insertYoutubeId, id)
+func (q *Queries) InsertYoutubeIds(ctx context.Context, ids []string) ([]string, error) {
+	rows, err := q.db.Query(ctx, insertYoutubeIds, ids)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected(), nil
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

@@ -1,17 +1,14 @@
--- name: InsertYoutubeId :execrows
+-- name: InsertYoutubeIds :many
 INSERT INTO youtube(id)
-VALUES (
-    sqlc.arg(id)::text
-) ON CONFLICT (id) DO NOTHING;
+SELECT unnest(@ids::text[])
+ON CONFLICT (id) DO NOTHING RETURNING id;
 
--- name: InsertTwitterId :execrows
+-- name: InsertTwitterIds :many
 INSERT INTO twitter(id)
-VALUES (
-    sqlc.arg(id)::text
-) ON CONFLICT (id) DO NOTHING;
+SELECT unnest(@ids::text[])
+ON CONFLICT (id) DO NOTHING RETURNING id;
 
--- name: InsertMangaDexId :execrows
+-- name: InsertMangaDexIds :many
 INSERT INTO mangadex(id)
-VALUES (
-    sqlc.arg(id)::text
-) ON CONFLICT (id) DO NOTHING;
+SELECT unnest(@ids::text[])
+ON CONFLICT (id) DO NOTHING RETURNING id;
