@@ -9,8 +9,10 @@ import (
 	"kimishinu/internal/handler/youtube"
 	"kimishinu/internal/lib"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -50,7 +52,19 @@ func main() {
 	defer pool.Close()
 
 	queries := db.New(pool)
-	httpClient := http.Client{}
+	httpClient := http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			Proxy:                 http.ProxyFromEnvironment,
+			DialContext:           (&net.Dialer{Timeout: 10 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+			ForceAttemptHTTP2:     true,
+			MaxIdleConns:          100,
+			MaxIdleConnsPerHost:   20,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		},
+	}
 
 	y := youtube.New(youtubeAPI, webhookURL, queries, httpClient)
 	t := twitter.New(twitterAPI, queries, webhookURL, httpClient)
