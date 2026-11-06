@@ -9,3 +9,9 @@ CREATE TABLE twitter (
     CONSTRAINT twitter_id_check CHECK (length(id) = 19),
     CONSTRAINT twitter_id_pkey PRIMARY KEY (id)
 );
+
+CREATE TABLE mangadex (
+    id TEXT NOT NULL,
+    CONSTRAINT mangadex_id_check CHECK (length(id) = 36),
+    CONSTRAINT mangadex_id_pkey PRIMARY KEY (id)
+);

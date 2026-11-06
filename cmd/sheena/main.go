@@ -4,6 +4,7 @@ import (
 	"context"
 	"kimishinu/internal/auth"
 	db "kimishinu/internal/db/sqlc"
+	"kimishinu/internal/handler/mangadex"
 	"kimishinu/internal/handler/twitter"
 	"kimishinu/internal/handler/youtube"
 	"kimishinu/internal/lib"
@@ -53,6 +54,7 @@ func main() {
 
 	y := youtube.New(youtubeAPI, webhookURL, queries, httpClient)
 	t := twitter.New(twitterAPI, queries, webhookURL, httpClient)
+	m := mangadex.New(queries, webhookURL, httpClient)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
@@ -64,6 +66,9 @@ func main() {
 		}
 		for _, user := range twitter.Users {
 			r.Post("/twitter/"+user.Handlername, t.TWTKimishinu(user))
+		}
+		for _, manga := range mangadex.Mangas {
+			r.Post("/mangadex/"+manga.HandlerName, m.MDKimishinu(manga))
 		}
 	})
 
