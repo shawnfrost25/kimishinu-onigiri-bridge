@@ -46,7 +46,7 @@ func (m *MangaDex) MDKimishinu(manga Manga) http.HandlerFunc {
 			return
 		}
 
-		respM, err := http.DefaultClient.Do(reqM)
+		respM, err := m.HttpClient.Do(reqM)
 		if err != nil {
 			err = failure.Wrap("mangadex.http.fetch.request.send", err)
 			errlog.General(*logger, w, op("request_send"), failure.InternalGeneralError, err, trace)
@@ -79,7 +79,7 @@ func (m *MangaDex) MDKimishinu(manga Manga) http.HandlerFunc {
 		if len(mangaResp.Data) == 0 {
 			err := failure.InternalGeneral(op("response"), "no data found in response")
 			err = failure.Wrap("mangadex.http.fetch.response.no_data", err)
-			errlog.General(*logger, w, op("response_no_data"), failure.NotFoundError, err, trace)
+			errlog.Http(*logger, w, op("response_no_data"), failure.NotFoundError, err, trace)
 			return
 		}
 
