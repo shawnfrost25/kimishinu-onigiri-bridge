@@ -9,6 +9,21 @@ import (
 	"context"
 )
 
+const insertMangaDexId = `-- name: InsertMangaDexId :execrows
+INSERT INTO mangadex(id)
+VALUES (
+    $1::text
+) ON CONFLICT (id) DO NOTHING
+`
+
+func (q *Queries) InsertMangaDexId(ctx context.Context, id string) (int64, error) {
+	result, err := q.db.Exec(ctx, insertMangaDexId, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const insertTwitterId = `-- name: InsertTwitterId :execrows
 INSERT INTO twitter(id)
 VALUES (

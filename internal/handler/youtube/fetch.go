@@ -30,17 +30,6 @@ var Channels = []Channel{
 	{PlaylistId: "UUevPX0DXUiKmgH8o19NrE5w", ChannelName: "Infinite Channel", Keywords: keywords, HandlerName: "infinite"},
 }
 
-func match(text string, keywords []string) bool {
-	normalizedText := lib.Normalize(text)
-	for _, keyword := range keywords {
-		if strings.Contains(normalizedText, keyword) {
-			return true
-		}
-	}
-
-	return false
-}
-
 const URI = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=10&playlistId="
 
 func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
@@ -103,8 +92,9 @@ func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
 		}
 
 		logger.Debug("Processing items from Youtube API response", slog.Int("item_count", len(videoResp.Items)))
+		var inserted int
 		for _, item := range videoResp.Items {
-			if !match(item.Snippet.Title, ch.Keywords) {
+			if !lib.Match(item.Snippet.Title, keywords) && !lib.Match(item.Snippet.Description, keywords) {
 				continue
 			}
 
@@ -135,6 +125,13 @@ func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
 				// discord.Send already logs the error, so we just return here
 				return
 			}
+			inserted += 1
+		}
+
+		if inserted == 0 {
+			logger.Debug("No new videos to send to Discord")
+			lib.Pretty(w, http.StatusNoContent, nil)
+			return
 		}
 
 		logger.Info("successfully sent data to discord")

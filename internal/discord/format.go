@@ -14,6 +14,7 @@ const sheenaRoommate string = "https://cdn.jsdelivr.net/gh/shawnfrost25/kimishin
 
 const yturl string = "https://www.youtube.com/watch?v="
 const twturl string = "https://fxtwitter.com/%s/status/%s"
+const mdurl string = "https://mangadex.org/chapter/%s"
 
 func ConvertToDiscordFormat(source string, identifier string) ([]byte, error) {
 	var finalUrl string
@@ -29,6 +30,10 @@ func ConvertToDiscordFormat(source string, identifier string) ([]byte, error) {
 		finalUrl = fmt.Sprintf(twturl, parts[0], parts[1])
 		icon = sheena
 		username = "Sheena Totsuki"
+	case "mangadex":
+		finalUrl = fmt.Sprintf(mdurl, identifier)
+		icon = ari
+		username = "Ari Moudou"
 	default:
 		return nil, fmt.Errorf("invalid source: %s", source)
 	}

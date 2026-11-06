@@ -9,7 +9,7 @@ import (
 	"kimishinu/internal/lib"
 	"log/slog"
 	"net/http"
-	"strings"
+	"time"
 
 	"github.com/bytedance/sonic"
 )
@@ -31,17 +31,6 @@ var Users = []User{
 	{Username: "kotobukiyas", Keywords: keywords, Handlername: "kotobukiyas"},
 	{Username: "VSN_CHILLfigg", Keywords: keywords, Handlername: "vsn_chillfigg"},
 	{Username: "ROLL2__", Keywords: keywords, Handlername: "roll2"},
-}
-
-func match(text string, keywords []string) bool {
-	normalizedText := lib.Normalize(text)
-	for _, keyword := range keywords {
-		if strings.Contains(normalizedText, keyword) {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
@@ -97,10 +86,12 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 			return
 		}
 
+		var inserted int
 		for _, tweet := range TweetsResponse.Data.Tweets {
-			normalizedText := lib.Normalize(tweet.Text)
-			if match(normalizedText, user.Keywords) {
-				continue
+			if user.Handlername != "kimishinu" && user.Handlername != "anime_kimishinu" && user.Handlername != "kimishinu_event" {
+				if !lib.Match(tweet.Text, user.Keywords) {
+					continue
+				}
 			}
 
 			insertedRows, err := t.Queries.InsertTwitterId(r.Context(), tweet.ID)
@@ -126,10 +117,18 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 			logger.Debug("Sending data to Discord", slog.String("tweet_id", tweet.ID))
 			d := discord.New(t.HttpClient, t.WebhookURL, *logger)
 
+			time.Sleep(5 * time.Second) // Add a 5-second delay, because I get rate-limited by Discord if I send too many requests in a short period of time.
 			err = d.Send(w, trace, bodyBytes)
 			if err != nil {
 				return
 			}
+
+			inserted += 1
+		}
+		if inserted == 0 {
+			logger.Debug("No new tweets to send to Discord")
+			lib.Pretty(w, http.StatusNoContent, nil)
+			return
 		}
 
 		logger.Info("Successfully sent data to Discord")

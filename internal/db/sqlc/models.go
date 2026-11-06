@@ -4,6 +4,10 @@
 
 package db
 
+type Mangadex struct {
+	ID string
+}
+
 type Twitter struct {
 	ID string
 }
