@@ -108,14 +108,14 @@ func y(t *testing.T, trip *MyTrip) *Server {
 	r.Group(func(r chi.Router) {
 		r.Use(auth.LoggerMiddleware)
 		for _, ch := range Channels {
-			r.Get("/youtube/"+ch.HandlerName, h.YTKimishinu(ch))
+			r.Post("/youtube/"+ch.HandlerName, h.YTKimishinu(ch))
 		}
 	})
 
 	return ServerNew(r, pool, queries)
 }
 
-func TestFetchKimishinu(t *testing.T) {
+func TestYTKimishinu(t *testing.T) {
 	trip := &MyTrip{}
 	s := y(t, trip)
 
@@ -157,7 +157,7 @@ func TestFetchKimishinu(t *testing.T) {
 	for _, tt := range test {
 		t.Run(tt.Name, func(t *testing.T) {
 			trip.Reason = tt.Reason
-			w := s.do(t, tt.Endpoint, http.MethodGet, nil)
+			w := s.do(t, tt.Endpoint, http.MethodPost, nil)
 
 			if w.Code != tt.ExpectedStatus {
 				t.Fatalf("Failed: \nProvided status: %d \nExpected status: %d \nResponse: %s", w.Code, tt.ExpectedStatus, w.Body.String())
