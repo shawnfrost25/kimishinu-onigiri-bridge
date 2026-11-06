@@ -9,7 +9,6 @@ import (
 	"kimishinu/internal/lib"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/bytedance/sonic"
 )
@@ -56,7 +55,7 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 		}
 		reqT.Header.Set("Authorization", "Bearer "+t.ApiKey)
 
-		var TweetsResponse TwitterResp
+		var TweetsResponse lib.TwitterResp
 		respT, err := t.HttpClient.Do(reqT)
 		if err != nil {
 			err = failure.Wrap("twitter.http.fetch.request.send", err)
@@ -86,52 +85,41 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 			return
 		}
 
-		var inserted int
-		for _, tweet := range TweetsResponse.Data.Tweets {
-			if user.Handlername != "kimishinu" && user.Handlername != "anime_kimishinu" && user.Handlername != "kimishinu_event" {
-				if !lib.Match(tweet.Text, user.Keywords) {
-					continue
-				}
-			}
-
-			insertedRows, err := t.Queries.InsertTwitterId(r.Context(), tweet.ID)
-			if err != nil {
-				err = failure.Wrap("twitter.database.twitter.id.deduplicate.check", err)
-				errlog.Database(*logger, w, op("deduplicate_check"), trace, err)
-				return
-			}
-
-			if insertedRows == 0 {
-				logger.Debug("Tweet already exists in database, skipping", slog.String("tweet_id", tweet.ID))
-				continue
-			}
-
-			gift := user.Username + "_" + tweet.ID
-			bodyBytes, err := discord.ConvertToDiscordFormat("twitter", gift)
-			if err != nil {
-				err = failure.Wrap(fmt.Sprintf("twitter.json.%s.response.body.marshal", user.Handlername), err)
-				errlog.Json(*logger, w, op("response_body_marshal"), trace, err)
-				return
-			}
-
-			logger.Debug("Sending data to Discord", slog.String("tweet_id", tweet.ID))
-			d := discord.New(t.HttpClient, t.WebhookURL, *logger)
-
-			time.Sleep(5 * time.Second) // Add a 5-second delay, because I get rate-limited by Discord if I send too many requests in a short period of time.
-			err = d.Send(w, trace, bodyBytes)
-			if err != nil {
-				return
-			}
-
-			inserted += 1
+		pureIds, err := lib.Deduplicate(r.Context(), keywords, TweetsResponse.Data.Tweets, t.Queries)
+		if err != nil {
+			err = failure.Wrap("twitter.http.fetch.deduplicate", err)
+			errlog.Database(*logger, w, op("deduplicate"), trace, err)
+			return
 		}
-		if inserted == 0 {
+		if pureIds == nil {
 			logger.Debug("No new tweets to send to Discord")
 			lib.Pretty(w, http.StatusNoContent, nil)
 			return
 		}
 
-		logger.Info("Successfully sent data to Discord")
 		lib.Pretty(w, http.StatusNoContent, nil)
+
+		go func(l []string) {
+			for _, id := range l {
+				gift := user.Username + "_" + id
+				bodyBytes, err := discord.ConvertToDiscordFormat("twitter", gift)
+				if err != nil {
+					err = failure.Wrap(fmt.Sprintf("twitter.json.%s.response.body.marshal", user.Handlername), err)
+					errlog.Json(*logger, w, op("response_body_marshal"), trace, err)
+					return
+				}
+
+				logger.Debug("Sending data to Discord", slog.String("tweet_id", id))
+				d := discord.New(t.HttpClient, t.WebhookURL, *logger)
+
+				// Whatever, we will fake it until we make it. When I'll buy the premium version of Twitter API, I will fix this. For now, we will just send the latest tweet every time.
+				err = d.Send(trace, bodyBytes)
+				if err != nil {
+					return
+				}
+			}
+		}(pureIds)
+
+		logger.Info("Successfully sent data to Discord")
 	})
 }

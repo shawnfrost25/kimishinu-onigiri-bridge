@@ -61,7 +61,7 @@ func (m *MangaDex) MDKimishinu(manga Manga) http.HandlerFunc {
 			return
 		}
 
-		var mangaResp MangaDexResp
+		var mangaResp lib.MangaDexResp
 		err = sonic.ConfigDefault.NewDecoder(respM.Body).Decode(&mangaResp)
 		if err != nil {
 			err = failure.Wrap("mangadex.http.fetch.response.decode", err)
@@ -83,46 +83,40 @@ func (m *MangaDex) MDKimishinu(manga Manga) http.HandlerFunc {
 			return
 		}
 
-		var inserted int
-		for _, data := range mangaResp.Data {
-			logger.Debug("Processing manga data", slog.String("manga_id", data.ID))
-
-			insertedRows, err := m.Queries.InsertMangaDexId(r.Context(), data.ID)
-			if err != nil {
-				err = failure.Wrap("mangadex.database.manga.id.deduplicate.check", err)
-				errlog.Database(*logger, w, op("deduplicate_check"), trace, err)
-				return
-			}
-
-			if insertedRows == 0 {
-				logger.Debug("Manga ID already exists in database, skipping", slog.String("manga_id", data.ID))
-				continue
-			}
-
-			bodyBytes, err := discord.ConvertToDiscordFormat("mangadex", data.ID)
-			if err != nil {
-				err = failure.Wrap(fmt.Sprintf("mangadex.json.%s.response.body.marshal", manga.HandlerName), err)
-				errlog.Json(*logger, w, op("response_body_marshal"), trace, err)
-				return
-			}
-
-			logger.Debug("Sending data to Discord", slog.String("manga_id", data.ID))
-			d := discord.New(m.HttpClient, m.WebhookURL, *logger)
-
-			err = d.Send(w, trace, bodyBytes)
-			if err != nil {
-				return
-			}
-			inserted += 1
+		pureIds, err := lib.Deduplicate(r.Context(), nil, mangaResp.Data, m.Queries)
+		if err != nil {
+			err = failure.Wrap("mangadex.http.fetch.deduplicate", err)
+			errlog.Database(*logger, w, op("deduplicate"), trace, err)
+			return
 		}
-
-		if inserted == 0 {
+		if pureIds == nil {
 			logger.Debug("No new mangas to send to Discord")
 			lib.Pretty(w, http.StatusNoContent, nil)
 			return
 		}
 
-		logger.Info("successfully send data to discord")
 		lib.Pretty(w, http.StatusNoContent, nil)
+
+		go func(l []string) {
+			for _, id := range l {
+				bodyBytes, err := discord.ConvertToDiscordFormat("mangadex", id)
+				if err != nil {
+					err = failure.Wrap(fmt.Sprintf("mangadex.json.%s.response.body.marshal", manga.HandlerName), err)
+					errlog.Json(*logger, w, op("response_body_marshal"), trace, err)
+					return
+				}
+
+				logger.Debug("Sending data to Discord", slog.String("manga_id", id))
+				d := discord.New(m.HttpClient, m.WebhookURL, *logger)
+
+				err = d.Send(trace, bodyBytes)
+				if err != nil {
+					return
+				}
+
+			}
+		}(pureIds)
+
+		logger.Info("successfully send data to discord")
 	})
 }

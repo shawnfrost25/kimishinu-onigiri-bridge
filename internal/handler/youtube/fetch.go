@@ -1,7 +1,6 @@
 package youtube
 
 import (
-	"context"
 	"fmt"
 	"kimishinu/internal/auth"
 	"kimishinu/internal/discord"
@@ -75,7 +74,7 @@ func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
 			return
 		}
 
-		var videoResp VideoResp
+		var videoResp lib.VideoResp
 		logger.Debug("Decoding response from Youtube API")
 		err = sonic.ConfigDefault.NewDecoder(respI.Body).Decode(&videoResp)
 		if err != nil {
@@ -92,49 +91,42 @@ func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
 		}
 
 		logger.Debug("Processing items from Youtube API response", slog.Int("item_count", len(videoResp.Items)))
-		var inserted int
-		for _, item := range videoResp.Items {
-			if !lib.Match(item.Snippet.Title, keywords) && !lib.Match(item.Snippet.Description, keywords) {
-				continue
-			}
-
-			insertedRows, err := y.Queries.InsertYoutubeId(context.Background(), item.ContentDetails.VideoId)
-			if err != nil {
-				err = failure.Wrap("youtube.database.video.id.deduplicate.check", err)
-				errlog.Database(*logger, w, op("deduplicate_check"), trace, err)
-				return
-			}
-
-			if insertedRows == 0 {
-				logger.Debug("Video already exists in database, skipping", slog.String("video_id", item.ContentDetails.VideoId))
-				continue
-			}
-
-			bodyBytes, err := discord.ConvertToDiscordFormat("youtube", item.ContentDetails.VideoId)
-			if err != nil {
-				err = failure.Wrap(fmt.Sprintf("youtube.json.%s.response.body.marshal", polish(ch.ChannelName)), err)
-				errlog.Json(*logger, w, op("response_body_marshal"), trace, err)
-				return
-			}
-
-			logger.Debug("Sending data to Discord", slog.String("video_id", item.ContentDetails.VideoId))
-			d := discord.New(y.HttpClient, y.WebhookURL, *logger)
-
-			err = d.Send(w, trace, bodyBytes)
-			if err != nil {
-				// discord.Send already logs the error, so we just return here
-				return
-			}
-			inserted += 1
+		pureIds, err := lib.Deduplicate(r.Context(), keywords, videoResp, y.Queries)
+		if err != nil {
+			err = failure.Wrap("youtube.http.fetch.deduplicate", err)
+			errlog.Database(*logger, w, op("deduplicate"), trace, err)
+			return
 		}
-
-		if inserted == 0 {
+		if pureIds == nil {
 			logger.Debug("No new videos to send to Discord")
 			lib.Pretty(w, http.StatusNoContent, nil)
 			return
 		}
 
-		logger.Info("successfully sent data to discord")
+		// 'w' is deprecated from now on.
 		lib.Pretty(w, http.StatusNoContent, nil)
+
+		// Gotta get rid of all the 'w'
+		go func(ids []string) {
+			for _, id := range ids {
+				bodyBytes, err := discord.ConvertToDiscordFormat("youtube", id)
+				if err != nil {
+					err = failure.Wrap(fmt.Sprintf("youtube.json.%s.response.body.marshal", polish(ch.ChannelName)), err)
+					errlog.Json(*logger, nil, op("response_body_marshal"), trace, err)
+					return
+				}
+
+				logger.Debug("Sending data to Discord", slog.String("video_id", id))
+				d := discord.New(y.HttpClient, y.WebhookURL, *logger)
+
+				err = d.Send(trace, bodyBytes)
+				if err != nil {
+					// discord.Send already logs the error, so we just return here
+					return
+				}
+			}
+		}(pureIds)
+
+		logger.Info("successfully sent data to discord")
 	}
 }
