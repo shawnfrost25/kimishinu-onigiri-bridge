@@ -37,6 +37,16 @@ func (m *MangaDex) MDKimishinu(manga Manga) http.HandlerFunc {
 			return manga.HandlerName + "_" + s
 		}
 
+		tx, err := m.Pool.Begin(r.Context())
+		if err != nil {
+			err = failure.Wrap("mangadex.http.pool.transaction.begin", err)
+			errlog.General(*logger, w, op("transaction_begin"), failure.InternalGeneralError, err, trace)
+			return
+		}
+		defer tx.Rollback(r.Context())
+
+		qtx := m.Queries.WithTx(tx)
+
 		finalURI := fmt.Sprintf(URI, manga.ID)
 
 		reqM, err := http.NewRequest(http.MethodGet, finalURI, nil)
@@ -83,7 +93,7 @@ func (m *MangaDex) MDKimishinu(manga Manga) http.HandlerFunc {
 			return
 		}
 
-		pureIds, err := lib.Deduplicate(r.Context(), nil, mangaResp.Data, m.Queries)
+		pureIds, err := lib.Deduplicate(r.Context(), nil, mangaResp.Data, qtx)
 		if err != nil {
 			err = failure.Wrap("mangadex.http.fetch.deduplicate", err)
 			errlog.Database(*logger, w, op("deduplicate"), trace, err)
@@ -116,6 +126,13 @@ func (m *MangaDex) MDKimishinu(manga Manga) http.HandlerFunc {
 
 			}
 		}(pureIds)
+
+		err = tx.Commit(r.Context())
+		if err != nil {
+			err = failure.Wrap("mangadex.http.pool.transaction.commit", err)
+			errlog.General(*logger, w, op("transaction_commit"), failure.InternalGeneralError, err, trace)
+			return
+		}
 
 		logger.Info("successfully send data to discord")
 	})

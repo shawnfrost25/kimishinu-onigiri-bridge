@@ -21,14 +21,20 @@ type User struct {
 
 const URI string = "https://api.twitterapi.io/twitter/user/last_tweets?userName="
 
-var keywords = []string{"きみが死ぬまで恋をしたい", "きみ死ぬ", "kimigashinumadekoiwoshitai", "kimigashinumadekoioshitai", "iwanttoloveyoutillyourdyingday", "iwanttoloveyouuntilyoudie", "kimishinu", "kimishinuanime", "kimidieanime", "kimishineanime"}
+var keywords = []string{"きみが死ぬまで恋をしたい", "きみ死ぬ", "きみ死ぬアニメ", "kimigashinumadekoiwoshitai", "kimishinu", "kimishinuanime"}
 
+// Reminders:
+// 1. Add a "Tier" to the User struct to indicate wherever we must poll every 5, 30, or 180 minutes. This will help me spare me some credits (I AM BROKE).
 var Users = []User{
+	{Username: "aooont", Handlername: "aooont"},
 	{Username: "kimishinu", Handlername: "kimishinu"},
-	{Username: "anime_kimishinu", Handlername: "kimishinu_anime"},
+	{Username: "anime_kimishinu", Handlername: "anime_kimishinu"},
 	{Username: "kimishinu_event", Handlername: "kimishinu_event"},
+	{Username: "mup_contents", Handlername: "mup_contents"},
 	{Username: "kotobukiyas", Keywords: keywords, Handlername: "kotobukiyas"},
 	{Username: "VSN_CHILLfigg", Keywords: keywords, Handlername: "vsn_chillfigg"},
+	{Username: "YuFu_toyomimasu", Keywords: keywords, Handlername: "yufu"},
+	{Username: "roll2chan", Keywords: keywords, Handlername: "roll2chan"},
 	{Username: "ROLL2__", Keywords: keywords, Handlername: "roll2"},
 }
 
@@ -46,6 +52,16 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 		op := func(reason string) string {
 			return user.Handlername + "_" + reason
 		}
+
+		tx, err := t.Pool.Begin(r.Context())
+		if err != nil {
+			err = failure.Wrap("twitter.http.pool.transaction.begin", err)
+			errlog.General(*logger, w, op("transaction_begin"), failure.InternalGeneralError, err, trace)
+			return
+		}
+		defer tx.Rollback(r.Context())
+
+		qtx := t.Queries.WithTx(tx)
 
 		reqT, err := http.NewRequest(http.MethodGet, finalURI, nil)
 		if err != nil {
@@ -85,7 +101,7 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 			return
 		}
 
-		pureIds, err := lib.Deduplicate(r.Context(), keywords, TweetsResponse.Data.Tweets, t.Queries)
+		pureIds, err := lib.Deduplicate(r.Context(), keywords, TweetsResponse.Data.Tweets, qtx)
 		if err != nil {
 			err = failure.Wrap("twitter.http.fetch.deduplicate", err)
 			errlog.Database(*logger, w, op("deduplicate"), trace, err)
@@ -119,6 +135,13 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 				}
 			}
 		}(pureIds)
+
+		err = tx.Commit(r.Context())
+		if err != nil {
+			err = failure.Wrap("twitter.http.pool.transaction.commit", err)
+			errlog.General(*logger, w, op("transaction_commit"), failure.InternalGeneralError, err, trace)
+			return
+		}
 
 		logger.Info("Successfully sent data to Discord")
 	})

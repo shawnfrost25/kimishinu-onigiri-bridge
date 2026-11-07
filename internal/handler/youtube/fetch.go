@@ -47,6 +47,16 @@ func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
 			return ch.HandlerName + "_" + reason
 		}
 
+		tx, err := y.Pool.Begin(r.Context())
+		if err != nil {
+			err = failure.Wrap("youtube.http.pool.transaction.begin", err)
+			errlog.General(*logger, w, op("transaction_begin"), failure.InternalGeneralError, err, trace)
+			return
+		}
+		defer tx.Rollback(r.Context())
+
+		qtx := y.Queries.WithTx(tx)
+
 		finalURI := URI + ch.PlaylistId
 
 		reqI, err := http.NewRequest(http.MethodGet, finalURI, nil)
@@ -91,7 +101,7 @@ func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
 		}
 
 		logger.Debug("Processing items from Youtube API response", slog.Int("item_count", len(videoResp.Items)))
-		pureIds, err := lib.Deduplicate(r.Context(), keywords, videoResp, y.Queries)
+		pureIds, err := lib.Deduplicate(r.Context(), keywords, videoResp, qtx)
 		if err != nil {
 			err = failure.Wrap("youtube.http.fetch.deduplicate", err)
 			errlog.Database(*logger, w, op("deduplicate"), trace, err)
@@ -126,6 +136,13 @@ func (y *Youtube) YTKimishinu(ch Channel) http.HandlerFunc {
 				}
 			}
 		}(pureIds)
+
+		err = tx.Commit(r.Context())
+		if err != nil {
+			err = failure.Wrap("youtube.http.pool.transaction.commit", err)
+			errlog.General(*logger, w, op("transaction_commit"), failure.InternalGeneralError, err, trace)
+			return
+		}
 
 		logger.Info("successfully sent data to discord")
 	}

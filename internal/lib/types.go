@@ -18,10 +18,15 @@ type VideoResp struct {
 	Items []Item `json:"items"`
 }
 
+type Author struct {
+	UserName string `json:"userName"`
+}
+
 type Tweet struct {
-	ID   string `json:"id"`
-	URL  string `json:"url"`
-	Text string `json:"text"`
+	ID     string `json:"id"`
+	URL    string `json:"url"`
+	Text   string `json:"text"`
+	Author Author `json:"author"`
 }
 
 type TWTData struct {
