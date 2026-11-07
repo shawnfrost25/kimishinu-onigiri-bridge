@@ -29,7 +29,18 @@ func Deduplicate(ctx context.Context, keywords []string, body any, queries *db.Q
 	case []Tweet:
 		ids := make([]string, 0, len(item))
 		seen := make(map[string]struct{}, len(item))
+		bypass := map[string]struct{}{
+			"aooont":          {},
+			"kimishinu":       {},
+			"anime_kimishinu": {},
+			"kimishinu_event": {},
+		}
 		for _, tw := range item {
+			if _, ok := bypass[tw.Author.UserName]; ok {
+				seen[tw.ID] = struct{}{}
+				ids = append(ids, tw.ID)
+				continue
+			}
 			if _, s := seen[tw.ID]; s {
 				continue
 			}
