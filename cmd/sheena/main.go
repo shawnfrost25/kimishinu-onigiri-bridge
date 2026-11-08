@@ -2,11 +2,8 @@ package main
 
 import (
 	"context"
-	"kimishinu/internal/auth"
 	db "kimishinu/internal/db/sqlc"
-	"kimishinu/internal/handler/mangadex"
-	"kimishinu/internal/handler/twitter"
-	"kimishinu/internal/handler/youtube"
+	"kimishinu/internal/job"
 	"kimishinu/internal/lib"
 	"log/slog"
 	"net"
@@ -14,10 +11,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/riverqueue/river"
+	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 )
 
 func main() {
@@ -66,29 +63,50 @@ func main() {
 		},
 	}
 
-	y := youtube.New(youtubeAPI, webhookURL, queries, httpClient)
-	t := twitter.New(twitterAPI, queries, webhookURL, httpClient)
-	m := mangadex.New(queries, webhookURL, httpClient)
+	periodicJobs := []*river.PeriodicJob{
+		river.NewPeriodicJob(
+			river.PeriodicInterval(10*time.Minute),
+			func() (river.JobArgs, *river.InsertOpts) {
+				return job.YoutubePollArgs{Tier: "fast"}, nil
+			},
+			&river.PeriodicJobOpts{RunOnStart: true},
+		),
+		river.NewPeriodicJob(
+			river.PeriodicInterval(1*time.Hour),
+			func() (river.JobArgs, *river.InsertOpts) {
+				return job.YoutubePollArgs{Tier: "slow"}, nil
+			},
+			&river.PeriodicJobOpts{RunOnStart: true},
+		),
+	}
+	workers := river.NewWorkers()
+	// Think of this process as actually giving the values to "Worker" - so it can run normally
+	discordWorker := &job.DiscordSendWorker{
+		WebhookURL: webhookURL,
+		HttpClient: httpClient,
+	}
+	youtubeWorker := &job.YoutubePollWorker{
+		ApiKey:     youtubeAPI,
+		WebhookURL: webhookURL,
+		Pool:       pool,
+		Queries:    queries,
+		HttpClient: httpClient,
+		// To avoid the chicken-and-egg problem, we simply let it "nil" for now, and we will add it later
+	}
 
-	r := chi.NewRouter()
-	r.Use(middleware.Recoverer)
-	r.Use(auth.LoggerMiddleware)
+	river.AddWorker(workers, discordWorker)
+	river.AddWorker(workers, youtubeWorker)
 
-	r.Group(func(r chi.Router) {
-		for _, channel := range youtube.Channels {
-			r.Post("/youtube/"+channel.HandlerName, y.YTKimishinu(channel))
-		}
-		for _, user := range twitter.Users {
-			r.Post("/twitter/"+user.Handlername, t.TWTKimishinu(user))
-		}
-		for _, manga := range mangadex.Mangas {
-			r.Post("/mangadex/"+manga.HandlerName, m.MDKimishinu(manga))
-		}
+	riverClient, err := river.NewClient(riverpgxv5.New(pool), &river.Config{
+		Workers:      workers,
+		PeriodicJobs: periodicJobs,
 	})
-
-	const addr string = "0.0.0.0:8080"
-	print("Listening on port 8080")
-	if err := http.ListenAndServe(addr, r); err != nil {
+	if err != nil {
 		panic(err)
 	}
+
+	// we added it a value via pointer
+	youtubeWorker.RiverClient = riverClient
+
+	// DONT FORGET TO USE riverClient.Start() to start it!!!
 }

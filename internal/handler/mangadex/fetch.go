@@ -117,7 +117,7 @@ func (m *MangaDex) MDKimishinu(manga Manga) http.HandlerFunc {
 				}
 
 				logger.Debug("Sending data to Discord", slog.String("manga_id", id))
-				d := discord.New(m.HttpClient, m.WebhookURL, *logger)
+				d := discord.New(m.HttpClient, m.WebhookURL)
 
 				err = d.Send(trace, bodyBytes)
 				if err != nil {
