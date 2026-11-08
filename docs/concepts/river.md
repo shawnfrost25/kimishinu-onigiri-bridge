@@ -170,7 +170,7 @@ func (w *DiscordSendWorker) Work(ctx context.Context, job *river.Job[DiscordSend
 	return nil
 }
 ```
-* * * **Explanation** -> We start woth the `xxxWroker` structure, which will hold inside all the immutable datas. But as first field, it MUST have `river.WorkerDefaults[xxxArgs]` - since this is the part where we use `Kind()`. After this, we create a function called `Work()` - inside it we simply write what we would like it to run, as example, this will simply send the given data to discord.
+* * * **Explanation** -> We start woth the `xxxWroker` structure, which will hold inside all the immutable datas. But as first field, it MUST have `river.WorkerDefaults[xxxArgs]` - since this is the part where we use `Kind()`. After this, we create a function called `Work()` - inside it we simply write what we would like it to run, as example, this will simply send the given data to discord. Also, see that we don't add the DiscordSendArgs here, because it will already run whenever other jobs as `youtube_poll` runs, and it will create a job with the given `DiscordSendArgs` and River will pick it up and run it. Because when we do `river.InsertTx` it will insert the given data into the database, in our case, it will insert the `DiscordSendArgs` into the database, and also `available` to be picked up by River - and since river is always running, it will pick it up and run the `Work()` function (since the job names points to it).
 * **`main.go`**:
 ```go
 // All the variable assignments are omitted for brevity, but they are the same as the ones in the previous example
@@ -239,7 +239,6 @@ if ch.Tier != job.Args.Tier {
     continue
 }
 ```
-
 This means that a fast job processes only fast channels, while a slow job processes only slow channels. When a channel has a different tier, `continue` skips that channel and moves to the next one. It does not cancel the River job, remove the channel, or send the channel to another queue. The channel is simply checked again the next time a job runs. After setting up the schedules, we create the workers, give them their fixed values such as `http.Client` and `db.Queries`, register them with River, create the `river.Client`, and start it. We do not schedule `discord_send` here because `youtube_poll` creates that job when it finds a new video; River then provides reliability by retrying the Discord job if sending fails.
 
 ## What I Still Don't Understand
