@@ -78,6 +78,27 @@ func main() {
 			},
 			&river.PeriodicJobOpts{RunOnStart: true},
 		),
+		river.NewPeriodicJob(
+			river.PeriodicInterval(10*time.Minute),
+			func() (river.JobArgs, *river.InsertOpts) {
+				return job.TwitterPollArgs{Tier: "fast"}, nil
+			},
+			&river.PeriodicJobOpts{RunOnStart: true},
+		),
+		river.NewPeriodicJob(
+			river.PeriodicInterval(30*time.Minute),
+			func() (river.JobArgs, *river.InsertOpts) {
+				return job.TwitterPollArgs{Tier: "medium"}, nil
+			},
+			&river.PeriodicJobOpts{RunOnStart: true},
+		),
+		river.NewPeriodicJob(
+			river.PeriodicInterval(1*time.Hour),
+			func() (river.JobArgs, *river.InsertOpts) {
+				return job.TwitterPollArgs{Tier: "slow"}, nil
+			},
+			&river.PeriodicJobOpts{RunOnStart: true},
+		),
 	}
 	workers := river.NewWorkers()
 	// Think of this process as actually giving the values to "Worker" - so it can run normally
@@ -87,13 +108,19 @@ func main() {
 	}
 	youtubeWorker := &job.YoutubePollWorker{
 		ApiKey:     youtubeAPI,
-		WebhookURL: webhookURL,
 		Pool:       pool,
 		Queries:    queries,
 		HttpClient: httpClient,
 		// To avoid the chicken-and-egg problem, we simply let it "nil" for now, and we will add it later
 	}
+	twitterWorker := &job.TwitterPollWorker{
+		ApiKey:     twitterAPI,
+		Pool:       pool,
+		Queries:    queries,
+		HttpClient: httpClient,
+	}
 
+	river.AddWorker(workers, twitterWorker)
 	river.AddWorker(workers, discordWorker)
 	river.AddWorker(workers, youtubeWorker)
 
@@ -107,6 +134,7 @@ func main() {
 
 	// we added it a value via pointer
 	youtubeWorker.RiverClient = riverClient
+	twitterWorker.RiverClient = riverClient
 
 	err = riverClient.Start(context.Background())
 	if err != nil {

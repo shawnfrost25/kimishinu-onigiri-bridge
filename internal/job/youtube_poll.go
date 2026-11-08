@@ -38,17 +38,15 @@ const URI = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,co
 type YoutubePollWorker struct {
 	river.WorkerDefaults[YoutubePollArgs]
 	ApiKey      string
-	WebhookURL  string
 	Pool        *pgxpool.Pool
 	Queries     *db.Queries
 	HttpClient  http.Client
 	RiverClient *river.Client[pgx.Tx]
 }
 
-func YTNew(apiKey string, webhookURL string, pool *pgxpool.Pool, queries *db.Queries, httpClient *http.Client, riverClient *river.Client[pgx.Tx]) *YoutubePollWorker {
+func YTNew(apiKey string, pool *pgxpool.Pool, queries *db.Queries, httpClient *http.Client, riverClient *river.Client[pgx.Tx]) *YoutubePollWorker {
 	return &YoutubePollWorker{
 		ApiKey:      apiKey,
-		WebhookURL:  webhookURL,
 		Pool:        pool,
 		Queries:     queries,
 		HttpClient:  *httpClient,
@@ -66,6 +64,7 @@ func (w *YoutubePollWorker) Work(ctx context.Context, job *river.Job[YoutubePoll
 		err := w.ytKimishinuPoll(ctx, ch, trace)
 		if err != nil {
 			slog.Error("Error occurred while polling YouTube", slog.String("error", err.Error()))
+			return err
 		}
 	}
 	return nil
