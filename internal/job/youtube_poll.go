@@ -143,7 +143,7 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 	}
 	if pureIds == nil {
 		logger.Debug("No new videos to send to Discord")
-		return err
+		return nil
 	}
 
 	lib.Pretty(nil, http.StatusNoContent, nil)

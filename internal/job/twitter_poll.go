@@ -134,7 +134,7 @@ func (t *TwitterPollWorker) TWTKimishinu(user User, trace string) error {
 	}
 	if pureIds == nil {
 		logger.Debug("No new tweets to send to Discord")
-		return err
+		return nil
 	}
 
 	for _, id := range pureIds {

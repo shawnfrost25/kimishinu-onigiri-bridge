@@ -99,6 +99,13 @@ func main() {
 			},
 			&river.PeriodicJobOpts{RunOnStart: true},
 		),
+		river.NewPeriodicJob(
+			river.PeriodicInterval(30*time.Minute),
+			func() (river.JobArgs, *river.InsertOpts) {
+				return job.MangadexPollArgs{Tier: "medium"}, nil
+			},
+			&river.PeriodicJobOpts{RunOnStart: true},
+		),
 	}
 	workers := river.NewWorkers()
 	// Think of this process as actually giving the values to "Worker" - so it can run normally
@@ -119,7 +126,13 @@ func main() {
 		Queries:    queries,
 		HttpClient: httpClient,
 	}
+	mangadexWorker := &job.MangadexPollWorker{
+		Pool:       pool,
+		Queries:    queries,
+		HttpClient: httpClient,
+	}
 
+	river.AddWorker(workers, mangadexWorker)
 	river.AddWorker(workers, twitterWorker)
 	river.AddWorker(workers, discordWorker)
 	river.AddWorker(workers, youtubeWorker)
@@ -135,6 +148,7 @@ func main() {
 	// we added it a value via pointer
 	youtubeWorker.RiverClient = riverClient
 	twitterWorker.RiverClient = riverClient
+	mangadexWorker.RiverClient = riverClient
 
 	err = riverClient.Start(context.Background())
 	if err != nil {
