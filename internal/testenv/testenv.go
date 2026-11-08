@@ -21,7 +21,6 @@ import (
 var (
 	databeUrl string
 	pgCont    *postgres.PostgresContainer
-	queries   *db.Queries
 )
 
 func Main(m *testing.M) {
