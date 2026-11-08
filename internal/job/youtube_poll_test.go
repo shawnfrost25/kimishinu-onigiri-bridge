@@ -23,6 +23,7 @@ func (youtubeTrip) RoundTrip(r *http.Request) (*http.Response, error) {
 		}
 		return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(bytes.NewReader(body))}, nil
 	}
+	// If it uses http.Client and it's a Discord webhook, we mock it.
 	if r.URL.Host == "discord.com" && r.URL.Path == "/api/webhooks" {
 		return &http.Response{StatusCode: http.StatusNoContent, Body: io.NopCloser(bytes.NewReader(nil))}, nil
 	}
