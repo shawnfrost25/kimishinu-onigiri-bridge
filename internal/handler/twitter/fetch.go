@@ -56,7 +56,7 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 		tx, err := t.Pool.Begin(r.Context())
 		if err != nil {
 			err = failure.Wrap("twitter.http.pool.transaction.begin", err)
-			errlog.General(*logger, w, op("transaction_begin"), failure.InternalGeneralError, err, trace)
+			errlog.General(*logger, op("transaction_begin"), failure.InternalGeneralError, err)
 			return
 		}
 		defer tx.Rollback(r.Context())
@@ -66,7 +66,7 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 		reqT, err := http.NewRequest(http.MethodGet, finalURI, nil)
 		if err != nil {
 			err = failure.Wrap("twitter.http.fetch.request.create", err)
-			errlog.Internal(*logger, w, op("request_create"), failure.InternalGeneralError, err, trace)
+			errlog.Internal(*logger, op("request_create"), failure.InternalGeneralError, err)
 			return
 		}
 		reqT.Header.Set("Authorization", "Bearer "+t.ApiKey)
@@ -75,7 +75,7 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 		respT, err := t.HttpClient.Do(reqT)
 		if err != nil {
 			err = failure.Wrap("twitter.http.fetch.request.send", err)
-			errlog.Internal(*logger, w, op("request_send"), failure.InternalGeneralError, err, trace)
+			errlog.Internal(*logger, op("request_send"), failure.InternalGeneralError, err)
 			return
 		}
 		defer respT.Body.Close()
@@ -83,28 +83,28 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 		if respT.StatusCode != http.StatusOK {
 			err = failure.InternalGeneral(op("request_status_code"), "unexpected status code: "+respT.Status)
 			err = failure.Wrap("twitter.http.fetch.request.status_code", err)
-			errlog.Internal(*logger, w, op("request_status_code"), failure.InternalGeneralError, err, trace)
+			errlog.Internal(*logger, op("request_status_code"), failure.InternalGeneralError, err)
 			return
 		}
 
 		err = sonic.ConfigDefault.NewDecoder(respT.Body).Decode(&TweetsResponse)
 		if err != nil {
 			err = failure.Wrap("twitter.json.fetch.response.decode", err)
-			errlog.Internal(*logger, w, op("response_decode"), failure.InternalGeneralError, err, trace)
+			errlog.Internal(*logger, op("response_decode"), failure.InternalGeneralError, err)
 			return
 		}
 
 		if len(TweetsResponse.Data.Tweets) == 0 {
 			err := failure.NotFound(op("response_tweets"))
 			err = failure.Wrap("twitter.http.fetch.response.no_tweets", err)
-			errlog.Http(*logger, w, op("response_tweets"), failure.NotFoundError, err, trace)
+			errlog.Resource(*logger, op("response_tweets"), failure.NotFoundError, err)
 			return
 		}
 
 		pureIds, err := lib.Deduplicate(r.Context(), keywords, TweetsResponse.Data.Tweets, qtx)
 		if err != nil {
 			err = failure.Wrap("twitter.http.fetch.deduplicate", err)
-			errlog.Database(*logger, w, op("deduplicate"), trace, err)
+			errlog.Database(*logger, op("deduplicate"), err)
 			return
 		}
 		if pureIds == nil {
@@ -121,7 +121,7 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 				bodyBytes, err := discord.ConvertToDiscordFormat("twitter", gift)
 				if err != nil {
 					err = failure.Wrap(fmt.Sprintf("twitter.json.%s.response.body.marshal", user.Handlername), err)
-					errlog.Json(*logger, w, op("response_body_marshal"), trace, err)
+					errlog.Json(*logger, op("response_body_marshal"), err)
 					return
 				}
 
@@ -139,7 +139,7 @@ func (t *Twitter) TWTKimishinu(user User) http.HandlerFunc {
 		err = tx.Commit(r.Context())
 		if err != nil {
 			err = failure.Wrap("twitter.http.pool.transaction.commit", err)
-			errlog.General(*logger, w, op("transaction_commit"), failure.InternalGeneralError, err, trace)
+			errlog.General(*logger, op("transaction_commit"), failure.InternalGeneralError, err)
 			return
 		}
 

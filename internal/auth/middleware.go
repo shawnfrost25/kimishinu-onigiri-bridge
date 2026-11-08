@@ -37,7 +37,7 @@ func GetTrace(ctx context.Context, w http.ResponseWriter) (string, bool) {
 	if !ok {
 		err := failure.EmptyValue("trace_context")
 		err = failure.Wrap("middleware.http.trace.context.fetch", err)
-		errlog.Internal(*logger, w, "trace_context", failure.InternalEmptyValueError, err, "")
+		errlog.Internal(*logger, "trace_context", failure.InternalEmptyValueError, err)
 		return "", false
 	}
 	return trace, ok
