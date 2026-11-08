@@ -230,7 +230,17 @@ defer func() {
     }
 }()
 ```
-* * * **Explanation** -> First thing that we do is we start with the periodic jobs, which is the timer, in which we tell it to run every 'x' minutes and what exactly to run (by giving it the "xxxArgs" - which will be used by `Kind()` to know what exactly to run). Then we create the workers, and we assign the values to them (as example, the `http.Client`, `db.Queries`, etc...) - think of this 'assigning' as the "New()" of river, in which it prepares the worker to run `Work()`. Then we create a `river.Client`, and we give it the driver (which is created via our connection pool) and the configuration (which contains the workers and periodic jobs). Finally, we start it, and we defer stopping it. Noticed that we don't schedule the `discord_send` job, because it will be called by the `youtube_poll` job, which will call it when it finds a new video - the Discord via river is just for reliability, so if it crashes or fails to send the message, it will be retried by river automatically.
+* * * **Explanation** -> First, the `periodicJobs` tell River what to run and how often to run it. In this example, River runs `YoutubePoll` every 10 minutes with `YoutubePollArgs{Tier: "fast"}` (simply will run 6 times with the `Tier: "fast"` as argument), and every hour with `YoutubePollArgs{Tier: "slow"}`. Both schedules also use `RunOnStart: true`, so each one runs once as soon as River starts. Since one hour contains six 10-minute intervals, the fast schedule runs six times for every one run of the slow schedule.
+
+When the `YoutubePollWorker` receives one of these jobs, it loops through all the channels. Its tier check is effectively:
+
+```go
+if ch.Tier != job.Args.Tier {
+    continue
+}
+```
+
+This means that a fast job processes only fast channels, while a slow job processes only slow channels. When a channel has a different tier, `continue` skips that channel and moves to the next one. It does not cancel the River job, remove the channel, or send the channel to another queue. The channel is simply checked again the next time a job runs. After setting up the schedules, we create the workers, give them their fixed values such as `http.Client` and `db.Queries`, register them with River, create the `river.Client`, and start it. We do not schedule `discord_send` here because `youtube_poll` creates that job when it finds a new video; River then provides reliability by retrying the Discord job if sending fails.
 
 ## What I Still Don't Understand
 * I pretty much understand everything, but I am not able to explain to miself the whole process or how exactly it works under the hood, but I know that it works, and I know that it is reliable, so I don't care about the inner workings of it. I just care about the interface and how to use it. Since I need to ship the code, not to become a "master-of-river" or anything like that.
