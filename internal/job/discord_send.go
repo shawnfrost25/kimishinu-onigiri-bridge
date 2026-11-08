@@ -10,6 +10,7 @@ import (
 
 // Think of this as Args, but here we store data that never changes, as example, the webhook, the logger is pretty much identical, etc...
 type DiscordSendWorker struct {
+	// WorkerDefaults expect inside '[]' an interface, the name is 'JobArgs' - the interface expects Kind() - exactly what we do, we pass xxxArgs as the struct (which hold data that we can use), while Kind() satisfy the contract
 	river.WorkerDefaults[DiscordSendArgs]
 	WebhookURL string
 	HttpClient http.Client

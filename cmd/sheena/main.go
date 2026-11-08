@@ -108,5 +108,14 @@ func main() {
 	// we added it a value via pointer
 	youtubeWorker.RiverClient = riverClient
 
-	// DONT FORGET TO USE riverClient.Start() to start it!!!
+	err = riverClient.Start(context.Background())
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		err := riverClient.Stop(context.Background())
+		if err != nil {
+			panic(err)
+		}
+	}()
 }
