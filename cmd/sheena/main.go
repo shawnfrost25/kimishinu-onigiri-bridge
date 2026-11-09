@@ -9,12 +9,15 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/riverqueue/river"
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
+	"github.com/riverqueue/river/rivermigrate"
 )
 
 func main() {
@@ -61,6 +64,16 @@ func main() {
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
 		},
+	}
+
+	migrator, err := rivermigrate.New(riverpgxv5.New(pool), nil)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = migrator.Migrate(context.Background(), rivermigrate.DirectionUp, nil)
+	if err != nil {
+		panic(err)
 	}
 
 	periodicJobs := []*river.PeriodicJob{
@@ -138,7 +151,12 @@ func main() {
 	river.AddWorker(workers, youtubeWorker)
 
 	riverClient, err := river.NewClient(riverpgxv5.New(pool), &river.Config{
-		Workers:      workers,
+		Workers: workers,
+		Queues: map[string]river.QueueConfig{
+			river.QueueDefault: {
+				MaxWorkers: 15,
+			},
+		},
 		PeriodicJobs: periodicJobs,
 	})
 	if err != nil {
@@ -150,12 +168,20 @@ func main() {
 	twitterWorker.RiverClient = riverClient
 	mangadexWorker.RiverClient = riverClient
 
-	err = riverClient.Start(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+
+	err = riverClient.Start(ctx)
 	if err != nil {
 		panic(err)
 	}
+	slog.Info("River started")
+
+	<-ctx.Done()
+
+	slog.Info("River shutting down")
 	defer func() {
-		err := riverClient.Stop(context.Background())
+		err := riverClient.Stop(ctx)
 		if err != nil {
 			panic(err)
 		}

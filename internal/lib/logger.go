@@ -20,7 +20,7 @@ func LoggerNew(level slog.Level) *slog.Logger {
 		}
 	}
 
-	logger := slog.New(slog.NewJSONHandler(os.Stderr, &opts))
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &opts))
 	slog.SetDefault(logger)
 
 	return logger
