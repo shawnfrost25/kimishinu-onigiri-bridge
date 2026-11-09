@@ -11,3 +11,6 @@ Severity is determined by the incident's impact, scope, and urgency, rather than
 * **SEV2 - High:** Causes significant disruption to major system functionality, substantial service degradation, or partial outages. Requires prompt attention and resolution.
 * **SEV3 - Moderate:** Causes limited disruption, such as minor service failures, bugs, or configuration issues. Requires attention but is not immediately critical.
 * **SEV4 - Low:** Causes minimal disruption, such as minor development issues, non-critical bugs, or configuration problems with little or no user impact. Can generally be addressed during normal development.
+
+## Current postmortems
+* **2026-11-09 - Database Connection Failure** -> [CLICK ME](https://github.com/shawnfrost25/kimishinu-onigiri-bridge/blob/main/docs/postmortems/2026-11-09-database-connection-failure.md)
