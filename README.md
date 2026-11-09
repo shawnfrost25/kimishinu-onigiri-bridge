@@ -34,3 +34,6 @@ This project is strictly **non-commercial**.
 Any mention of access, support, or usage should not be interpreted as a request for money.
 
 **kimishinu-onigiri-bridge is simply a fan-made tool, created with appreciation for KimiShinu.**
+
+## AI usage
+AI was heavily used to assist in writing and editing this README. Original idea was generated and written by the author, but AI was used to help with phrasing, grammar, and clarity (yeah, since my English is not perfect). The author reviewed and edited the AI-generated content to ensure accuracy and alignment with the intended message.
