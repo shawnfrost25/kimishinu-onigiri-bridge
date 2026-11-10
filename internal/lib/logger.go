@@ -2,26 +2,13 @@ package lib
 
 import (
 	"log/slog"
-	"os"
+
+	"go.opentelemetry.io/contrib/bridges/otelslog"
 )
 
-func LoggerNew(level slog.Level) *slog.Logger {
-
-	var opts slog.HandlerOptions
-	if level%4 != 0 || level < -4 || level > 8 {
-		opts = slog.HandlerOptions{
-			AddSource: false,
-			Level:     level,
-		}
-	} else {
-		opts = slog.HandlerOptions{
-			AddSource: false,
-			Level:     level.Level(),
-		}
-	}
-
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &opts))
+func LoggerNew(serviceName string) *slog.Logger {
+	// Forces to take all the LevelTypes and also points to the OTel API
+	logger := otelslog.NewLogger(serviceName)
 	slog.SetDefault(logger)
-
 	return logger
 }
