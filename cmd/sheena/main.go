@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	db "kimishinu/internal/db/sqlc"
 	"kimishinu/internal/errlog"
 	"kimishinu/internal/failure"
@@ -23,8 +24,6 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-var tracer = otel.Tracer("main")
-
 func main() {
 	os.Exit(setup())
 }
@@ -34,9 +33,12 @@ func main() {
 
 func setup() int {
 	ctx := context.Background()
-	l := lib.LoggerNew("kimishinu_poll")
+	l := lib.LoggerNew("kimishinu-poll")
 	logger := l.With(slog.String("op", "main_setup"))
 	errlog.SetLogger(ctx, logger)
+
+	tracer := otel.Tracer("main")
+
 	// We just created the parent span, everything starts from here
 	rootCtx, parentSpan := tracer.Start(ctx, "main.start")
 	defer parentSpan.End()
@@ -48,6 +50,7 @@ func setup() int {
 	loggerProv, err := observability.LoggerSetup(otelLogCtx)
 	if err != nil {
 		err = failure.Wrap("main.otel.log.extractor.create", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(otelLogCtx, "otel_log_extractor_create", failure.InternalGeneralError, err)
 		return 1
 	}
@@ -57,6 +60,7 @@ func setup() int {
 		err := loggerProv.Shutdown(shutdownCtx)
 		if err != nil {
 			err = failure.Wrap("main.otel.log.provider.close", err)
+			fmt.Fprintf(os.Stderr, "main: %v\n", err)
 			errlog.Internal(otelLogCtx, "otel_log_provider_close", failure.InternalGeneralError, err)
 		}
 	}()
@@ -68,6 +72,7 @@ func setup() int {
 	traceProv, err := observability.TracerSetup(otelTraceCtx)
 	if err != nil {
 		err = failure.Wrap("main.otel.trace.extractor.create", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(otelTraceCtx, "otel_trace_extractor_create", failure.InternalGeneralError, err)
 		return 1
 	}
@@ -77,6 +82,7 @@ func setup() int {
 		err := traceProv.Shutdown(shutdown)
 		if err != nil {
 			err = failure.Wrap("main.otel.trace.provider.close", err)
+			fmt.Fprintf(os.Stderr, "main: %v\n", err)
 			errlog.Internal(otelTraceCtx, "otel_trace_provider_close", failure.InternalGeneralError, err)
 		}
 	}()
@@ -89,6 +95,7 @@ func setup() int {
 	if databaseURL == "" {
 		err := failure.EmptyValue("DATABASE_URL")
 		err = failure.Wrap("main.database.url.environment.variable.fetch", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(envCtx, "DATABASE_URL", failure.InternalEmptyValueError, err)
 		return 1
 	}
@@ -96,6 +103,7 @@ func setup() int {
 	if youtubeAPI == "" {
 		err := failure.EmptyValue("YOUTUBE_API")
 		err = failure.Wrap("main.youtube.api.environment.variable.fetch", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(envCtx, "YOUTUBE_API", failure.InternalEmptyValueError, err)
 		return 1
 	}
@@ -103,6 +111,7 @@ func setup() int {
 	if webhookURL == "" {
 		err := failure.EmptyValue("WEBHOOK_URL")
 		err = failure.Wrap("main.webhook.url.environment.variable.fetch", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(envCtx, "WEBHOOK_URL", failure.InternalEmptyValueError, err)
 		return 1
 	}
@@ -110,6 +119,7 @@ func setup() int {
 	if twitterAPI == "" {
 		err := failure.EmptyValue("TWITTER_API")
 		err = failure.Wrap("main.twitter.environment.variable.fetch", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(envCtx, "TWITTER_API", failure.InternalEmptyValueError, err)
 		return 1
 	}
@@ -119,6 +129,7 @@ func setup() int {
 	conf, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
 		err = failure.Wrap("main.pool.connection.parse.url", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(poolCtx, "database_url_parse", failure.InternalEmptyValueError, err)
 		return 1
 	}
@@ -126,6 +137,7 @@ func setup() int {
 	pool, err := pgxpool.NewWithConfig(context.Background(), conf)
 	if err != nil {
 		err = failure.Wrap("main.pool.connection.create.from.config", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(poolCtx, "database_pool_create", failure.InternalGeneralError, err)
 		return 1
 	}
@@ -153,6 +165,7 @@ func setup() int {
 	migrator, err := rivermigrate.New(riverpgxv5.New(pool), nil)
 	if err != nil {
 		err = failure.Wrap("main.river.migrator.create", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(riverSetupCtx, "river_migrator_create", failure.InternalGeneralError, err)
 		return 1
 	}
@@ -160,6 +173,7 @@ func setup() int {
 	_, err = migrator.Migrate(context.Background(), rivermigrate.DirectionUp, nil)
 	if err != nil {
 		err = failure.Wrap("main.river.migrator.migrate", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(riverSetupCtx, "river_migration_failed", failure.InternalGeneralError, err)
 		return 1
 	}
@@ -251,6 +265,7 @@ func setup() int {
 	})
 	if err != nil {
 		err = failure.Wrap("main.river.client.create", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(riverRunCtx, "river_client_create", failure.InternalGeneralError, err)
 		return 1
 	}
@@ -266,6 +281,7 @@ func setup() int {
 	err = riverClient.Start(ctx)
 	if err != nil {
 		err = failure.Wrap("main.river.client.start", err)
+		fmt.Fprintf(os.Stderr, "main: %v\n", err)
 		errlog.Internal(riverRunCtx, "river_client_start", failure.InternalGeneralError, err)
 		return 1
 	}
@@ -278,10 +294,10 @@ func setup() int {
 		err := riverClient.Stop(ctx)
 		if err != nil {
 			err = failure.Wrap("main.river.client.stop", err)
+			fmt.Fprintf(os.Stderr, "main: %v\n", err)
 			errlog.Internal(riverRunCtx, "river_client_stop", failure.InternalGeneralError, err)
 		}
 	}()
 
-	// USE THE REAL CTX INSTEAD OF JUST ROOTCTX
 	return 0
 }
