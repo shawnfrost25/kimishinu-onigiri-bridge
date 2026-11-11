@@ -4,8 +4,19 @@ import (
 	"context"
 
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/sdk/log"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
+
+func TracerSetup(ctx context.Context) (*sdktrace.TracerProvider, error) {
+	exporter, err := otlptrace.New(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	processor := sdktrace.NewBatchSpanProcessor(exporter)
+	return sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(processor)), nil
+}
 
 func LoggerSetup(ctx context.Context) (*log.LoggerProvider, error) {
 	exporter, err := otlploghttp.New(ctx)
