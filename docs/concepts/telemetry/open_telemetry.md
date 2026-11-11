@@ -104,6 +104,8 @@ if err != nil {
     otelSpan.RecordError(err)
     otelSpan.SetStatus(codes.Error, "failed to create an extractor")
     err = failure.Wrap("main.otel.extractor.create", err)
+    // Fallback only: the structured OTel log is the primary error path.
+    fmt.Fprintf(os.Stderr, "main: %v\n", err)
     errlog.Internal(*logger, "otel_extractor_create", failure.InternalGeneralError, err)
     return 1
 }
@@ -149,17 +151,17 @@ import (
 )
 
 func LoggerSetup(ctx context.Context) (*log.LoggerProvider, error) {
-    exporter, err := otlploghttp.New(ctx)
-    if err != nil {
-        return nil, err
-    }
-    procesor := log.NewBatchProcessor(exporter)
-    return log.NewLoggerProvider(log.WithProcessor(procesor)), nil
+    exporter, err := otlploghttp.New(ctx, otlploghttp.WithEndpoint("alloy:4318"), otlploghttp.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	procesor := log.NewBatchProcessor(exporter)
+	return log.NewLoggerProvider(log.WithProcessor(procesor)), nil
 }
 
 ```
 
-* Now, let me explain what happens here. First of all, we create an exporter using `otlploghttp.New()`. This will be where we export stuff. Now, you're probably thinking, "Uh, good... but where do we export stuff at this rate...?" And you're right, because the only thing it expects is an environment variable named `"OTEL_EXPORTER_OTLP_ENDPOINT"`—here we need to write `http://<location_of_our_collector>`, and from now on, OTel will act as a pipeline to our collector (the one taking our logs from the OTel API). After this, we write `log.NewBatchProcessor` to simply batch the logs before they get exported. Let me be clear what that means: you know that our logs are piling up inside the OTel API; we need a way to send them to the exporter since the exporter is blind to the OTel API. So the batch processor runs every `x` milliseconds/seconds and sends those logs to the exporter (since you see that it expects the exporter as a parameter). "But why does it run every `x` milliseconds/seconds?" The answer is simple: to avoid latency. It keeps the connection with the API open, because it would be hell if it used to send all the logs directly to the exporter and open a brand new connection per each log line. In the end, we use `log.NewLoggerProvider`. Its job is simple: it simply hands the logging over to the batch processor when asked. See? It's also responsible for the metadata the logs hold, but that's a different story. Also, it's extremely suggested to name the service by using the environmental variable names "`OTEL_SERVICE_NAME`" - else it'll default to a confusing name instead. Sooo... You finished it, yay! Documentation done—happy??
+* Now, let me explain what happens here. First, we create an exporter using `otlploghttp.New()`. The exporter needs an endpoint, which this example provides directly as `alloy:4318` through `WithEndpoint(...)`. `OTEL_EXPORTER_OTLP_ENDPOINT` is an alternative way to configure that endpoint, not a requirement for this setup. From there, OTel acts as a pipeline to our collector (the one receiving logs from the OTel API). After this, we use `log.NewBatchProcessor` to batch the logs before they are exported. The logs collect inside the OTel API, so the batch processor periodically sends them to the exporter. This avoids opening a new connection for every log line and reduces latency. Finally, `log.NewLoggerProvider` hands the logging over to the batch processor and manages the log metadata. It is also strongly recommended to set the service name with the `OTEL_SERVICE_NAME` environment variable; otherwise, it may default to a confusing name.
 
 ## What I Still Don't Understand
 
