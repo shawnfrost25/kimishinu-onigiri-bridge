@@ -20,6 +20,55 @@ services:
       retries: 3
       interval: 5s
       timeout: 10s
+    networks:
+      - bridge
+  alloy:
+    container_name: "kimishinu-alloy"
+    restart: unless-stopped
+    image: "grafana/alloy:v1.20.1-distroless"
+    volumes:
+      - ./internal/observability/config.alloy:/etc/alloy/config.alloy:ro
+      - k_alloy:/var/lib/alloy/data
+    ports:
+      - 4318:4318
+      - 12345:12345
+    command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "--storage.path=/var/lib/alloy/data", "/etc/alloy/config.alloy"]
+    networks:
+      - bridge
+      - info
+  loki:
+    container_name: "kimishinu-loki"
+    restart: unless-stopped
+    image: "grafana/loki:3.7.9"
+    networks:
+      - info
+      - subinfo
+  tempo:
+    container_name: kimishinu-tempo
+    restart: unless-stopped
+    image: grafana/tempo:3.1.0 
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./internal/observability/tempo.yaml:/etc/tempo.yaml:ro
+      - k_tempo:/var/tempo
+    networks:
+      - info
+      - subinfo
+  grafana:
+    container_name: "kimishinu-grafana"
+    restart: unless-stopped
+    image: "grafana/grafana:13.2.5-distroless-slim"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - 3000:3000
+    volumes:
+      - k_grafana:/var/lib/grafana
+    networks:
+      - subinfo
+
   backend:
     build:
       context: .
@@ -34,6 +83,26 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - bridge
 
 volumes:
   k_db:
+  k_alloy:
+  k_grafana:
+  k_tempo:
+
+networks:
+  bridge:
+    name: backend
+  info:
+    name: telemetry
+  subinfo:
+    name: ui
+
+## My networking setup little diagram is:
+## backend (bridge) <-> telemetry (info) <-> ui (subinfo)
+## In which:
+## ## backend --> database + alloy (They both interact with the backend)
+## ## telemetry --> alloy + loki + tempo (They all interact with each other)
+## ## ui --> loki + grafana + tempo (They all interact with each other)
