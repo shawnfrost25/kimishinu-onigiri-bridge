@@ -1,22 +1,30 @@
 package errlog
 
 import (
+	"context"
 	"kimishinu/internal/failure"
-	"log/slog"
 	"strings"
+
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
-func General(logger slog.Logger, subject string, kind failure.KindType, err error) {
+func General(ctx context.Context, subject string, kind failure.KindType, err error) {
+	span := trace.SpanFromContext(ctx)
 	subjectMsg := strings.ReplaceAll(subject, "_", " ")
-
+	logger := GetLogger(ctx)
 	switch kind {
 	case failure.GeneralError:
-		logger.Warn(subjectMsg+" request failed",
+		logger.WarnContext(ctx,
+			subjectMsg+" request failed",
 			"err", err,
 			"code", subject+"_failed",
 		)
 	case failure.InternalGeneralError:
-		logger.Error(subjectMsg+" ended as unexpected internal error",
+		span.RecordError(err)
+		span.SetStatus(codes.Error, subjectMsg+" ended as unexpected internal error")
+		logger.ErrorContext(ctx,
+			subjectMsg+" ended as unexpected internal error",
 			"err", err,
 			"code", subject+"_failed",
 		)

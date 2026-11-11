@@ -1,52 +1,53 @@
 package errlog
 
 import (
+	"context"
 	"kimishinu/internal/failure"
-	"log/slog"
 	"strings"
 )
 
-func Resource(logger slog.Logger, subject string, kind failure.KindType, err error) {
+func Resource(ctx context.Context, subject string, kind failure.KindType, err error) {
+	logger := GetLogger(ctx)
 	subjectMsg := strings.ReplaceAll(subject, "_", " ")
 
 	switch kind {
 	case failure.EmptyValueError:
-		logger.Warn(subjectMsg+" is missing",
+		logger.WarnContext(ctx, subjectMsg+" is missing",
 			"err", err,
 			"code", subject+"_missing",
 		)
 	case failure.MalformedError:
-		logger.Warn("resource is malformed",
+		logger.WarnContext(ctx, "resource is malformed",
 			"err", err,
 			"code", subject+"_malformed",
 		)
 	case failure.InvalidError:
-		logger.Warn("request validation failed",
+		logger.WarnContext(ctx, "request validation failed",
 			"err", err,
 			"code", subject+"_invalid",
 		)
 	case failure.UnauthorizedError:
-		logger.Warn("unauthorized "+subjectMsg,
+		logger.WarnContext(ctx, "unauthorized "+subjectMsg,
 			"err", err,
 			"code", subject+"_unauthorized",
 		)
 	case failure.ForbiddenError:
-		logger.Warn("not enough permissions for "+subjectMsg,
+		logger.WarnContext(ctx, "not enough permissions for "+subjectMsg,
 			"err", err,
 			"code", subject+"_forbidden",
 		)
 	case failure.ConflictError:
-		logger.Warn("resource conflict",
+		logger.WarnContext(ctx, "resource conflict",
 			"err", err,
 			"code", subject+"_already_exists",
 		)
 	case failure.NotFoundError:
-		logger.Warn(subjectMsg+" not found",
+		logger.WarnContext(ctx, subjectMsg+" not found",
 			"err", err,
 			"code", subject+"_not_found",
 		)
 	case failure.RateLimitError:
-		logger.Warn(subjectMsg+" is rate limited",
+		logger.WarnContext(ctx, subjectMsg+" is rate limited",
 			"err", err,
 			"code", subject+"_rate_limited",
 		)

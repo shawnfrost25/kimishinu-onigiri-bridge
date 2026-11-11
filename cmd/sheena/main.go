@@ -21,7 +21,6 @@ import (
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 	"github.com/riverqueue/river/rivermigrate"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 )
 
 var tracer = otel.Tracer("main")
@@ -35,19 +34,21 @@ func main() {
 
 func setup() int {
 	ctx := context.Background()
-	logger := lib.LoggerNew("kimishinu_poll")
+	l := lib.LoggerNew("kimishinu_poll")
+	logger := l.With(slog.String("op", "main_setup"))
+	errlog.SetLogger(ctx, logger)
 	// We just created the parent span, everything starts from here
 	rootCtx, parentSpan := tracer.Start(ctx, "main.start")
 	defer parentSpan.End()
 
 	otelCtx, otelSpan := tracer.Start(rootCtx, "main.otel.setup")
 	defer otelSpan.End()
-	loggerProv, err := observability.LoggerSetup(otelCtx)
+	otelLogCtx, otelLogSpan := tracer.Start(otelCtx, "main.log.otel.setup")
+	defer otelLogSpan.End()
+	loggerProv, err := observability.LoggerSetup(otelLogCtx)
 	if err != nil {
-		otelSpan.RecordError(err)
-		otelSpan.SetStatus(codes.Error, "failed to create an extractor")
-		err = failure.Wrap("main.otel.extractor.create", err)
-		errlog.Internal(*logger, "otel_extractor_create", failure.InternalGeneralError, err)
+		err = failure.Wrap("main.otel.log.extractor.create", err)
+		errlog.Internal(otelLogCtx, "otel_log_extractor_create", failure.InternalGeneralError, err)
 		return 1
 	}
 	defer func() {
@@ -55,71 +56,77 @@ func setup() int {
 		defer cancel()
 		err := loggerProv.Shutdown(shutdownCtx)
 		if err != nil {
-			otelSpan.RecordError(err)
-			otelSpan.SetStatus(codes.Error, "failed to close the provider")
-			err = failure.Wrap("main.otel.provider.close", err)
-			errlog.Internal(*logger, "otel_provider_close", failure.InternalGeneralError, err)
+			err = failure.Wrap("main.otel.log.provider.close", err)
+			errlog.Internal(otelLogCtx, "otel_log_provider_close", failure.InternalGeneralError, err)
 		}
 	}()
 
 	otel.SetLoggerProvider(loggerProv)
 
-	_, envSpan := tracer.Start(rootCtx, "main.environment.variable.fetch")
+	otelTraceCtx, otelTraceSpan := tracer.Start(otelCtx, "main.otel.trace.setup")
+	defer otelTraceSpan.End()
+	traceProv, err := observability.TracerSetup(otelTraceCtx)
+	if err != nil {
+		err = failure.Wrap("main.otel.trace.extractor.create", err)
+		errlog.Internal(otelTraceCtx, "otel_trace_extractor_create", failure.InternalGeneralError, err)
+		return 1
+	}
+	defer func() {
+		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		err := traceProv.Shutdown(shutdown)
+		if err != nil {
+			err = failure.Wrap("main.otel.trace.provider.close", err)
+			errlog.Internal(otelTraceCtx, "otel_trace_provider_close", failure.InternalGeneralError, err)
+		}
+	}()
+
+	otel.SetTracerProvider(traceProv)
+
+	envCtx, envSpan := tracer.Start(rootCtx, "main.environment.variable.fetch")
 	defer envSpan.End()
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL == "" {
 		err := failure.EmptyValue("DATABASE_URL")
-		envSpan.RecordError(err)
-		envSpan.SetStatus(codes.Error, "missing environmental variable")
 		err = failure.Wrap("main.database.url.environment.variable.fetch", err)
-		errlog.Internal(*logger, "DATABASE_URL", failure.InternalEmptyValueError, err)
+		errlog.Internal(envCtx, "DATABASE_URL", failure.InternalEmptyValueError, err)
 		return 1
 	}
 	youtubeAPI := os.Getenv("YOUTUBE_API")
 	if youtubeAPI == "" {
 		err := failure.EmptyValue("YOUTUBE_API")
-		envSpan.RecordError(err)
-		envSpan.SetStatus(codes.Error, "missing environmental variable")
 		err = failure.Wrap("main.youtube.api.environment.variable.fetch", err)
-		errlog.Internal(*logger, "YOUTUBE_API", failure.InternalEmptyValueError, err)
+		errlog.Internal(envCtx, "YOUTUBE_API", failure.InternalEmptyValueError, err)
 		return 1
 	}
 	webhookURL := os.Getenv("WEBHOOK_URL")
 	if webhookURL == "" {
 		err := failure.EmptyValue("WEBHOOK_URL")
-		envSpan.RecordError(err)
-		envSpan.SetStatus(codes.Error, "missing environmental variable")
 		err = failure.Wrap("main.webhook.url.environment.variable.fetch", err)
-		errlog.Internal(*logger, "WEBHOOK_URL", failure.InternalEmptyValueError, err)
+		errlog.Internal(envCtx, "WEBHOOK_URL", failure.InternalEmptyValueError, err)
 		return 1
 	}
 	twitterAPI := os.Getenv("TWITTER_API")
 	if twitterAPI == "" {
 		err := failure.EmptyValue("TWITTER_API")
-		envSpan.RecordError(err)
-		envSpan.SetStatus(codes.Error, "missing environmental variable")
 		err = failure.Wrap("main.twitter.environment.variable.fetch", err)
-		errlog.Internal(*logger, "TWITTER_API", failure.InternalEmptyValueError, err)
+		errlog.Internal(envCtx, "TWITTER_API", failure.InternalEmptyValueError, err)
 		return 1
 	}
 
-	_, poolSpan := tracer.Start(rootCtx, "main.pool.connection.create")
+	poolCtx, poolSpan := tracer.Start(rootCtx, "main.pool.connection.create")
 	defer poolSpan.End()
 	conf, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
-		poolSpan.RecordError(err)
-		poolSpan.SetStatus(codes.Error, "failed to parse database url")
 		err = failure.Wrap("main.pool.connection.parse.url", err)
-		errlog.Internal(*logger, "database_url_parse", failure.InternalEmptyValueError, err)
+		errlog.Internal(poolCtx, "database_url_parse", failure.InternalEmptyValueError, err)
 		return 1
 	}
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), conf)
 	if err != nil {
-		poolSpan.RecordError(err)
-		poolSpan.SetStatus(codes.Error, "failed to create database pool")
 		err = failure.Wrap("main.pool.connection.create.from.config", err)
-		errlog.Internal(*logger, "database_pool_create", failure.InternalGeneralError, err)
+		errlog.Internal(poolCtx, "database_pool_create", failure.InternalGeneralError, err)
 		return 1
 	}
 	defer pool.Close()
@@ -141,21 +148,19 @@ func setup() int {
 
 	riverCtx, riverSpan := tracer.Start(rootCtx, "main.river.setup")
 	defer riverSpan.End()
+	riverSetupCtx, riverSetupSpan := tracer.Start(riverCtx, "main.river.setup.create")
+	defer riverSetupSpan.End()
 	migrator, err := rivermigrate.New(riverpgxv5.New(pool), nil)
 	if err != nil {
-		riverSpan.RecordError(err)
-		riverSpan.SetStatus(codes.Error, "failed to create river migrator")
 		err = failure.Wrap("main.river.migrator.create", err)
-		errlog.Internal(*logger, "river_migrator_create", failure.InternalGeneralError, err)
+		errlog.Internal(riverSetupCtx, "river_migrator_create", failure.InternalGeneralError, err)
 		return 1
 	}
 
 	_, err = migrator.Migrate(context.Background(), rivermigrate.DirectionUp, nil)
 	if err != nil {
-		riverSpan.RecordError(err)
-		riverSpan.SetStatus(codes.Error, "failed to migrate river")
 		err = failure.Wrap("main.river.migrator.migrate", err)
-		errlog.Internal(*logger, "river_migration_failed", failure.InternalGeneralError, err)
+		errlog.Internal(riverSetupCtx, "river_migration_failed", failure.InternalGeneralError, err)
 		return 1
 	}
 
@@ -233,7 +238,7 @@ func setup() int {
 	river.AddWorker(workers, discordWorker)
 	river.AddWorker(workers, youtubeWorker)
 
-	_, riverRunSpan := tracer.Start(riverCtx, "main.river.run")
+	riverRunCtx, riverRunSpan := tracer.Start(riverCtx, "main.river.run")
 	defer riverRunSpan.End()
 	riverClient, err := river.NewClient(riverpgxv5.New(pool), &river.Config{
 		Workers: workers,
@@ -245,10 +250,8 @@ func setup() int {
 		PeriodicJobs: periodicJobs,
 	})
 	if err != nil {
-		riverRunSpan.RecordError(err)
-		riverRunSpan.SetStatus(codes.Error, "failed to create river client")
 		err = failure.Wrap("main.river.client.create", err)
-		errlog.Internal(*logger, "river_client_create", failure.InternalGeneralError, err)
+		errlog.Internal(riverRunCtx, "river_client_create", failure.InternalGeneralError, err)
 		return 1
 	}
 
@@ -262,10 +265,8 @@ func setup() int {
 
 	err = riverClient.Start(ctx)
 	if err != nil {
-		riverRunSpan.RecordError(err)
-		riverRunSpan.SetStatus(codes.Error, "failed to start river client")
 		err = failure.Wrap("main.river.client.start", err)
-		errlog.Internal(*logger, "river_client_start", failure.InternalGeneralError, err)
+		errlog.Internal(riverRunCtx, "river_client_start", failure.InternalGeneralError, err)
 		return 1
 	}
 	slog.Info("River started")
@@ -276,12 +277,11 @@ func setup() int {
 	defer func() {
 		err := riverClient.Stop(ctx)
 		if err != nil {
-			riverRunSpan.RecordError(err)
-			riverRunSpan.SetStatus(codes.Error, "failed to stop river client")
 			err = failure.Wrap("main.river.client.stop", err)
-			errlog.Internal(*logger, "river_client_stop", failure.InternalGeneralError, err)
+			errlog.Internal(riverRunCtx, "river_client_stop", failure.InternalGeneralError, err)
 		}
 	}()
 
+	// USE THE REAL CTX INSTEAD OF JUST ROOTCTX
 	return 0
 }
