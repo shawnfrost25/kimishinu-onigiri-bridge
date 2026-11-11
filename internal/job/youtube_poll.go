@@ -56,12 +56,11 @@ func YTNew(apiKey string, pool *pgxpool.Pool, queries *db.Queries, httpClient *h
 
 func (w *YoutubePollWorker) Work(ctx context.Context, job *river.Job[YoutubePollArgs]) error {
 	currentTier := job.Args.Tier
-	trace := "yt_kimishinu_poll_" + fmt.Sprintf("%d", job.ID)
 	for _, ch := range Channels {
 		if currentTier != ch.Tier {
 			continue
 		}
-		err := w.ytKimishinuPoll(ctx, ch, trace)
+		err := w.ytKimishinuPoll(ctx, ch)
 		if err != nil {
 			slog.Error("Error occurred while polling YouTube", slog.String("error", err.Error()))
 			return err
@@ -70,11 +69,12 @@ func (w *YoutubePollWorker) Work(ctx context.Context, job *river.Job[YoutubePoll
 	return nil
 }
 
-func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, trace string) error {
+func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel) error {
 	polish := func(s string) string {
 		return strings.ToLower(strings.ReplaceAll(s, " ", "_"))
 	}
 	logger := slog.With(slog.String("op", "yt_kimishinu_poll"), slog.String("channel", polish(ch.ChannelName)))
+	ctx = errlog.SetLogger(ctx, logger)
 	logger.Debug(fmt.Sprintf("Fetching %s from Youtube API", ch.ChannelName))
 
 	op := func(reason string) string {
@@ -84,7 +84,7 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 	tx, err := w.Pool.Begin(ctx)
 	if err != nil {
 		err = failure.Wrap("youtube.http.pool.transaction.begin", err)
-		errlog.General(*logger, op("transaction_begin"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("transaction_begin"), failure.InternalGeneralError, err)
 		return err
 	}
 	defer tx.Rollback(ctx)
@@ -96,7 +96,7 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 	reqI, err := http.NewRequest(http.MethodGet, finalURI, nil)
 	if err != nil {
 		err = failure.Wrap("youtube.http.fetch.request.create", err)
-		errlog.Internal(*logger, op("request_create"), failure.InternalGeneralError, err)
+		errlog.Internal(ctx, op("request_create"), failure.InternalGeneralError, err)
 		return err
 	}
 	reqI.Header.Set("Accept", "application/json")
@@ -106,7 +106,7 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 	respI, err := w.HttpClient.Do(reqI)
 	if err != nil {
 		err = failure.Wrap("youtube.http.fetch.request.send", err)
-		errlog.Internal(*logger, op("request_send"), failure.InternalGeneralError, err)
+		errlog.Internal(ctx, op("request_send"), failure.InternalGeneralError, err)
 		return err
 	}
 	defer respI.Body.Close()
@@ -114,7 +114,7 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 	if respI.StatusCode != http.StatusOK {
 		err = failure.InternalGeneral(op("request_status_code"), fmt.Sprintf("unexpected status code: %d", respI.StatusCode))
 		err = failure.Wrap("youtube.http.fetch.request.status_code", err)
-		errlog.Internal(*logger, op("request_status_code"), failure.InternalGeneralError, err)
+		errlog.Internal(ctx, op("request_status_code"), failure.InternalGeneralError, err)
 		return err
 	}
 
@@ -123,14 +123,14 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 	err = sonic.ConfigDefault.NewDecoder(respI.Body).Decode(&videoResp)
 	if err != nil {
 		err = failure.Wrap("youtube.http.fetch.response.decode", err)
-		errlog.Internal(*logger, op("response_decode"), failure.InternalGeneralError, err)
+		errlog.Internal(ctx, op("response_decode"), failure.InternalGeneralError, err)
 		return err
 	}
 
 	if len(videoResp.Items) == 0 {
 		err = failure.InternalGeneral(op("response"), "no items found in response")
 		err = failure.Wrap("youtube.http.fetch.response.no_items", err)
-		errlog.Resource(*logger, op("response_no_items"), failure.NotFoundError, err)
+		errlog.Resource(ctx, op("response_no_items"), failure.NotFoundError, err)
 		return err
 	}
 
@@ -138,7 +138,7 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 	pureIds, err := lib.Deduplicate(ctx, keywords, videoResp, qtx)
 	if err != nil {
 		err = failure.Wrap("youtube.http.fetch.deduplicate", err)
-		errlog.Database(*logger, op("deduplicate"), err)
+		errlog.Database(ctx, op("deduplicate"), err)
 		return err
 	}
 	if pureIds == nil {
@@ -153,11 +153,10 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 		_, err = w.RiverClient.InsertTx(ctx, tx, DiscordSendArgs{
 			Source:     "youtube",
 			Identifier: id,
-			Trace:      trace,
 		}, nil)
 		if err != nil {
 			err = failure.Wrap("youtube.river.discord.send.insert", err)
-			errlog.General(*logger, op("river_setup"), failure.InternalGeneralError, err)
+			errlog.General(ctx, op("river_setup"), failure.InternalGeneralError, err)
 			return err
 		}
 	}
@@ -165,7 +164,7 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel, tra
 	err = tx.Commit(ctx)
 	if err != nil {
 		err = failure.Wrap("youtube.http.pool.transaction.commit", err)
-		errlog.General(*logger, op("transaction_commit"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("transaction_commit"), failure.InternalGeneralError, err)
 		return err
 	}
 
