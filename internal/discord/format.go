@@ -22,7 +22,7 @@ func ConvertToDiscordFormat(source string, identifier string) ([]byte, error) {
 	var username string
 	switch source {
 	case "youtube":
-		finalUrl = fmt.Sprintf("Mimi found a new **KimiShinu** drop. Don't pretend you weren't waiting for this. Just copy and share with others!!\n\n%s%s", yturl, identifier)
+		finalUrl = fmt.Sprintf("%s%s", yturl, identifier)
 		icon = mimi
 		username = "Mimi Kagari"
 	case "twitter":

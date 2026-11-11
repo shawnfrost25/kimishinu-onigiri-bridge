@@ -65,10 +65,11 @@ func (m *MangadexPollWorker) MDKimishinu(manga Manga, trace string) error {
 	}
 
 	ctx := context.Background()
+	ctx = errlog.SetLogger(ctx, logger)
 	tx, err := m.Pool.Begin(ctx)
 	if err != nil {
 		err = failure.Wrap("mangadex.http.pool.transaction.begin", err)
-		errlog.General(*logger, op("transaction_begin"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("transaction_begin"), failure.InternalGeneralError, err)
 		return err
 	}
 	defer tx.Rollback(ctx)
@@ -80,14 +81,14 @@ func (m *MangadexPollWorker) MDKimishinu(manga Manga, trace string) error {
 	reqM, err := http.NewRequest(http.MethodGet, finalURI, nil)
 	if err != nil {
 		err = failure.Wrap("mangadex.http.fetch.request.create", err)
-		errlog.General(*logger, op("request_create"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("request_create"), failure.InternalGeneralError, err)
 		return err
 	}
 
 	respM, err := m.HttpClient.Do(reqM)
 	if err != nil {
 		err = failure.Wrap("mangadex.http.fetch.request.send", err)
-		errlog.General(*logger, op("request_send"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("request_send"), failure.InternalGeneralError, err)
 		return err
 	}
 	defer respM.Body.Close()
@@ -95,7 +96,7 @@ func (m *MangadexPollWorker) MDKimishinu(manga Manga, trace string) error {
 	if respM.StatusCode != http.StatusOK {
 		err := failure.InternalGeneral(op("response"), fmt.Sprintf("unexpected status code: %d", respM.StatusCode))
 		err = failure.Wrap("mangadex.http.fetch.response.status_code", err)
-		errlog.General(*logger, op("response_status_code"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("response_status_code"), failure.InternalGeneralError, err)
 		return err
 	}
 
@@ -103,28 +104,28 @@ func (m *MangadexPollWorker) MDKimishinu(manga Manga, trace string) error {
 	err = sonic.ConfigDefault.NewDecoder(respM.Body).Decode(&mangaResp)
 	if err != nil {
 		err = failure.Wrap("mangadex.http.fetch.response.decode", err)
-		errlog.General(*logger, op("response_decode"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("response_decode"), failure.InternalGeneralError, err)
 		return err
 	}
 
 	if mangaResp.Result != "ok" {
 		err := failure.InternalGeneral(op("response"), "result is not ok")
 		err = failure.Wrap("mangadex.http.fetch.response.result_not_ok", err)
-		errlog.General(*logger, op("response_result_not_ok"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("response_result_not_ok"), failure.InternalGeneralError, err)
 		return err
 	}
 
 	if len(mangaResp.Data) == 0 {
 		err := failure.InternalGeneral(op("response"), "no data found in response")
 		err = failure.Wrap("mangadex.http.fetch.response.no_data", err)
-		errlog.Resource(*logger, op("response_no_data"), failure.NotFoundError, err)
+		errlog.Resource(ctx, op("response_no_data"), failure.NotFoundError, err)
 		return err
 	}
 
 	pureIds, err := lib.Deduplicate(ctx, nil, mangaResp.Data, qtx)
 	if err != nil {
 		err = failure.Wrap("mangadex.http.fetch.deduplicate", err)
-		errlog.Database(*logger, op("deduplicate"), err)
+		errlog.Database(ctx, op("deduplicate"), err)
 		return err
 	}
 	if pureIds == nil {
@@ -140,7 +141,7 @@ func (m *MangadexPollWorker) MDKimishinu(manga Manga, trace string) error {
 		}, nil)
 		if err != nil {
 			err = failure.Wrap("mangadex.river.discord.send.insert", err)
-			errlog.General(*logger, op("river_setup"), failure.InternalGeneralError, err)
+			errlog.General(ctx, op("river_setup"), failure.InternalGeneralError, err)
 			return err
 		}
 	}
@@ -148,7 +149,7 @@ func (m *MangadexPollWorker) MDKimishinu(manga Manga, trace string) error {
 	err = tx.Commit(ctx)
 	if err != nil {
 		err = failure.Wrap("mangadex.http.pool.transaction.commit", err)
-		errlog.General(*logger, op("transaction_commit"), failure.InternalGeneralError, err)
+		errlog.General(ctx, op("transaction_commit"), failure.InternalGeneralError, err)
 		return err
 	}
 
