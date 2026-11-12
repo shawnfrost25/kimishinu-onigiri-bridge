@@ -2,7 +2,6 @@ package job
 
 import (
 	"context"
-	"fmt"
 	db "kimishinu/internal/db/sqlc"
 	"kimishinu/internal/errlog"
 	"kimishinu/internal/failure"
@@ -15,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/riverqueue/river"
+	"go.opentelemetry.io/otel"
 )
 
 type TwitterPollWorker struct {
@@ -53,15 +53,13 @@ var Users = []User{
 func (t *TwitterPollWorker) Work(ctx context.Context, job *river.Job[TwitterPollArgs]) error {
 	currentTier := job.Args.Tier
 
-	trace := "twt_kimishinu_poll_" + fmt.Sprintf("%d", job.ID)
-
 	for _, user := range Users {
 		if user.Tier != currentTier {
 			continue
 		}
 
 		time.Sleep(5 * time.Second)
-		err := t.TWTKimishinu(user, trace)
+		err := t.TWTKimishinu(ctx, user)
 		if err != nil {
 			slog.Error("Error occurred while polling Twitter", slog.String("error", err.Error()))
 			return err
@@ -70,8 +68,9 @@ func (t *TwitterPollWorker) Work(ctx context.Context, job *river.Job[TwitterPoll
 	return nil
 }
 
-func (t *TwitterPollWorker) TWTKimishinu(user User, trace string) error {
+func (t *TwitterPollWorker) TWTKimishinu(ctx context.Context, user User) error {
 	logger := slog.With(slog.String("op", "twt_kimishinu_fetch"), slog.String("account", user.Handlername))
+	tracer := otel.Tracer("twitter_poll")
 
 	finalURI := TWTURI + user.Username
 
@@ -79,31 +78,36 @@ func (t *TwitterPollWorker) TWTKimishinu(user User, trace string) error {
 		return user.Handlername + "_" + reason
 	}
 
-	ctx := context.Background()
 	ctx = errlog.SetLogger(ctx, logger)
-	tx, err := t.Pool.Begin(ctx)
+	twtCtx, twtSpan := tracer.Start(ctx, "twitter.poll")
+	defer twtSpan.End()
+
+	poolCtx, poolSpan := tracer.Start(twtCtx, "twitter.http.pool.transaction")
+	defer poolSpan.End()
+	tx, err := t.Pool.Begin(poolCtx)
 	if err != nil {
 		err = failure.Wrap("twitter.http.pool.transaction.begin", err)
-		errlog.General(ctx, op("transaction_begin"), failure.InternalGeneralError, err)
+		errlog.General(poolCtx, op("transaction_begin"), failure.InternalGeneralError, err)
 		return err
 	}
-	defer tx.Rollback(ctx)
+	defer tx.Rollback(poolCtx)
 
 	qtx := t.Queries.WithTx(tx)
 
+	requestCtx, requestSpan := tracer.Start(twtCtx, "twitter.http.request")
+	defer requestSpan.End()
 	reqT, err := http.NewRequest(http.MethodGet, finalURI, nil)
 	if err != nil {
 		err = failure.Wrap("twitter.http.fetch.request.create", err)
-		errlog.Internal(ctx, op("request_create"), failure.InternalGeneralError, err)
+		errlog.Internal(requestCtx, op("request_create"), failure.InternalGeneralError, err)
 		return err
 	}
 	reqT.Header.Set("Authorization", "Bearer "+t.ApiKey)
 
-	var TweetsResponse lib.TwitterResp
 	respT, err := t.HttpClient.Do(reqT)
 	if err != nil {
 		err = failure.Wrap("twitter.http.fetch.request.send", err)
-		errlog.Internal(ctx, op("request_send"), failure.InternalGeneralError, err)
+		errlog.Internal(requestCtx, op("request_send"), failure.InternalGeneralError, err)
 		return err
 	}
 	defer respT.Body.Close()
@@ -111,28 +115,31 @@ func (t *TwitterPollWorker) TWTKimishinu(user User, trace string) error {
 	if respT.StatusCode != http.StatusOK {
 		err = failure.InternalGeneral(op("request_status_code"), "unexpected status code: "+respT.Status)
 		err = failure.Wrap("twitter.http.fetch.request.status_code", err)
-		errlog.Internal(ctx, op("request_status_code"), failure.InternalGeneralError, err)
+		errlog.Internal(requestCtx, op("request_status_code"), failure.InternalGeneralError, err)
 		return err
 	}
 
+	responseCtx, responseSpan := tracer.Start(twtCtx, "twitter.http.response.process")
+	defer responseSpan.End()
+	var TweetsResponse lib.TwitterResp
 	err = sonic.ConfigDefault.NewDecoder(respT.Body).Decode(&TweetsResponse)
 	if err != nil {
 		err = failure.Wrap("twitter.json.fetch.response.decode", err)
-		errlog.Internal(ctx, op("response_decode"), failure.InternalGeneralError, err)
+		errlog.Internal(responseCtx, op("response_decode"), failure.InternalGeneralError, err)
 		return err
 	}
 
 	if len(TweetsResponse.Data.Tweets) == 0 {
 		err := failure.NotFound(op("response_tweets"))
 		err = failure.Wrap("twitter.http.fetch.response.no_tweets", err)
-		errlog.Resource(ctx, op("response_tweets"), failure.NotFoundError, err)
+		errlog.Resource(responseCtx, op("response_tweets"), failure.NotFoundError, err)
 		return err
 	}
 
-	pureIds, err := lib.Deduplicate(ctx, keywords, TweetsResponse.Data.Tweets, qtx)
+	pureIds, err := lib.Deduplicate(responseCtx, keywords, TweetsResponse.Data.Tweets, qtx)
 	if err != nil {
 		err = failure.Wrap("twitter.http.fetch.deduplicate", err)
-		errlog.Database(ctx, op("deduplicate"), err)
+		errlog.Database(responseCtx, op("deduplicate"), err)
 		return err
 	}
 	if pureIds == nil {
@@ -140,16 +147,17 @@ func (t *TwitterPollWorker) TWTKimishinu(user User, trace string) error {
 		return nil
 	}
 
+	riverCtx, riverSpan := tracer.Start(twtCtx, "twitter.river.discord.send")
+	defer riverSpan.End()
 	for _, id := range pureIds {
 		gift := user.Username + "_" + id
-		_, err := t.RiverClient.InsertTx(ctx, tx, &DiscordSendArgs{
+		_, err := t.RiverClient.InsertTx(riverCtx, tx, &DiscordSendArgs{
 			Source:     "twitter",
 			Identifier: gift,
-			Trace:      trace,
 		}, nil)
 		if err != nil {
 			err = failure.Wrap("twitter.river.discord.send.insert", err)
-			errlog.General(ctx, op("river_setup"), failure.InternalGeneralError, err)
+			errlog.General(riverCtx, op("river_setup"), failure.InternalGeneralError, err)
 			return err
 		}
 	}
@@ -157,7 +165,7 @@ func (t *TwitterPollWorker) TWTKimishinu(user User, trace string) error {
 	err = tx.Commit(ctx)
 	if err != nil {
 		err = failure.Wrap("twitter.http.pool.transaction.commit", err)
-		errlog.General(ctx, op("transaction_commit"), failure.InternalGeneralError, err)
+		errlog.General(poolCtx, op("transaction_commit"), failure.InternalGeneralError, err)
 		return err
 	}
 

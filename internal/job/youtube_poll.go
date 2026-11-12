@@ -99,16 +99,17 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel) err
 
 	finalURI := URI + ch.PlaylistId
 
+	requestCtx, requestSpan := tracer.Start(ytPollCtx, "youtube.http.request")
+	defer requestSpan.End()
 	reqI, err := http.NewRequest(http.MethodGet, finalURI, nil)
 	if err != nil {
 		err = failure.Wrap("youtube.http.fetch.request.create", err)
-		errlog.Internal(ytPollCtx, op("request_create"), failure.InternalGeneralError, err)
+		errlog.Internal(requestCtx, op("request_create"), failure.InternalGeneralError, err)
 		return err
 	}
 	reqI.Header.Set("Accept", "application/json")
 	reqI.Header.Set("X-Goog-Api-Key", w.ApiKey)
 
-	requestCtx, requestSpan := tracer.Start(ytPollCtx, "youtube.http.request")
 	reqI = reqI.WithContext(requestCtx)
 	logger.Debug("Sending request to Youtube API", slog.String("url", finalURI))
 	respI, err := w.HttpClient.Do(reqI)
@@ -127,7 +128,7 @@ func (w *YoutubePollWorker) ytKimishinuPoll(ctx context.Context, ch Channel) err
 		return err
 	}
 
-	responseCtx, responseSpan := tracer.Start(ytPollCtx, "youtube.response.process")
+	responseCtx, responseSpan := tracer.Start(ytPollCtx, "youtube.http.response.process")
 	defer responseSpan.End()
 	var videoResp lib.VideoResp
 	logger.Debug("Decoding response from Youtube API")
