@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (d *Discord) Send(trace string, body []byte) error {
+func (d *Discord) Send(body []byte) error {
 	b := bytes.NewReader(body)
 
 	req, err := http.NewRequest(http.MethodPost, d.WebhookURL, b)

@@ -5,7 +5,6 @@ package job
 type DiscordSendArgs struct {
 	Source     string
 	Identifier string
-	Trace      string
 }
 
 // We use Kind() to satisfy this interface

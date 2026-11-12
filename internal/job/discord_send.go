@@ -20,7 +20,6 @@ type DiscordSendWorker struct {
 func (w *DiscordSendWorker) Work(ctx context.Context, job *river.Job[DiscordSendArgs]) error {
 	identifier := job.Args.Identifier
 	source := job.Args.Source
-	trace := job.Args.Trace
 
 	bodyBytes, err := discord.ConvertToDiscordFormat(source, identifier)
 	if err != nil {
@@ -29,7 +28,7 @@ func (w *DiscordSendWorker) Work(ctx context.Context, job *river.Job[DiscordSend
 
 	d := discord.New(w.HttpClient, w.WebhookURL)
 
-	err = d.Send(trace, bodyBytes)
+	err = d.Send(bodyBytes)
 	if err != nil {
 		return err
 	}
