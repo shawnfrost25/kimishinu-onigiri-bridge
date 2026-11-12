@@ -8,3 +8,4 @@ In other words, these are concepts I thought I understood but apparently hadn't 
 ## Current explanations
 * **River** -> [CLICK ME](https://github.com/shawnfrost25/kimishinu-onigiri-bridge/blob/main/docs/concepts/river.md)
 * **Telemetry** -> [CLICK ME](https://github.com/shawnfrost25/kimishinu-onigiri-bridge/tree/main/docs/concepts/telemetry)
+* **Dropped Concepts** -> [CLICK ME](https://github.com/shawnfrost25/kimishinu-onigiri-bridge/tree/main/docs/concepts/dropped)

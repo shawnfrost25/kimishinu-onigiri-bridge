@@ -9,6 +9,7 @@ import (
 	"kimishinu/internal/lib"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/jackc/pgx/v5"
@@ -59,6 +60,7 @@ func (t *TwitterPollWorker) Work(ctx context.Context, job *river.Job[TwitterPoll
 			continue
 		}
 
+		time.Sleep(5 * time.Second)
 		err := t.TWTKimishinu(user, trace)
 		if err != nil {
 			slog.Error("Error occurred while polling Twitter", slog.String("error", err.Error()))

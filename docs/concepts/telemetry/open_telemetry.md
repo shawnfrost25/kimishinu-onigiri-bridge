@@ -1,3 +1,6 @@
+## REFACTOR DISCLAIMER
+* Current documentation is deprecated.
+
 ## The Problem
 
 * The problem was evident: to use multiple vendors, you'd need multiple logs writing to each. Historically, sending telemetry data (metrics, logs, and traces) to multiple vendors required managing multiple agents and formats. For example, if you output JSON logs, metrics, and trace data all to `stdout`, you create a chaotic pipeline. Every vendor expects data in its own specific format, forcing you to run various agents to scrape `stdout` or parse temporary files (like writing to `/tmp/log/mimi.log` just so Grafana Alloy can read it). Instead of forcing your application to format data specifically for a vendor's agent, we use OTel. OTel provides standard SDKs to structure our data, injects useful context (like correlating traces with logs), and transmits it via a unified protocol (OTLP).
