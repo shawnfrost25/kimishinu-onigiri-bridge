@@ -162,7 +162,7 @@ func (t *TwitterPollWorker) TWTKimishinu(ctx context.Context, user User) error {
 		}
 	}
 
-	err = tx.Commit(ctx)
+	err = tx.Commit(poolCtx)
 	if err != nil {
 		err = failure.Wrap("twitter.http.pool.transaction.commit", err)
 		errlog.General(poolCtx, op("transaction_commit"), failure.InternalGeneralError, err)
