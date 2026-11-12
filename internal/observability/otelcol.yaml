@@ -1,0 +1,52 @@
+## What resources I used to write this config (Reminder for the future me):
+# General -> https://opentelemetry.io/docs/collector/configuration/
+# Batch Processor -> https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/batchprocessor/README.md
+# Memory Limiter Processor -> https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/memorylimiterprocessor/README.md
+# Exporter Naming -> https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/README.md (Here "<exampleexporter>/<settings>" = "otlphttp/<vendor>")
+# Exporter Settings -> https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/otlphttpexporter/README.md
+# Service Pipelines -> https://github.com/open-telemetry/opentelemetry-collector/blob/main/connector/README.md
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+  batch:
+    send_batch_size: 8192
+    timeout: 2s
+    send_batch_max_size: 16384
+
+exporters:
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+    retry_on_failure:
+      enabled: true
+      initial_interval: 3s
+      max_interval: 10s
+  otlphttp/tempo:
+    endpoint: http://tempo:4318
+    tls:
+      insecure: true
+    retry_on_failure:
+      enabled: true
+      initial_interval: 3s
+      max_interval: 10s
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/loki]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/tempo]

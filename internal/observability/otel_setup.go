@@ -16,7 +16,7 @@ func TracerSetup(ctx context.Context) (*sdktrace.TracerProvider, error) {
 		semconv.ServiceName("kimishinu-poll"),
 		semconv.ServiceVersion("1.0.0"),
 	))
-	exporter, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint("alloy:4318"), otlptracehttp.WithInsecure())
+	exporter, err := otlptracehttp.New(ctx, otlptracehttp.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func TracerSetup(ctx context.Context) (*sdktrace.TracerProvider, error) {
 }
 
 func LoggerSetup(ctx context.Context) (*log.LoggerProvider, error) {
-	exporter, err := otlploghttp.New(ctx, otlploghttp.WithEndpoint("alloy:4318"), otlploghttp.WithInsecure())
+	exporter, err := otlploghttp.New(ctx, otlploghttp.WithInsecure())
 	if err != nil {
 		return nil, err
 	}

@@ -14,35 +14,21 @@ services:
       - path: ".env"
         required: false
     ports:
-      - 127.0.0.1:5432:5432
+      - 5432:5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d $$POSTGRES_DB"]
       retries: 3
       interval: 5s
       timeout: 10s
     networks:
-      - bridge
-  alloy:
-    container_name: "kimishinu-alloy"
-    restart: unless-stopped
-    image: "grafana/alloy:v1.20.1-distroless"
-    volumes:
-      - ./internal/observability/config.alloy:/etc/alloy/config.alloy:ro
-      - k_alloy:/var/lib/alloy/data
-    ports:
-      - 4318:4318
-      - 12345:12345
-    command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "--storage.path=/var/lib/alloy/data", "/etc/alloy/config.alloy"]
-    networks:
-      - bridge
-      - info
+      - backend
   loki:
     container_name: "kimishinu-loki"
     restart: unless-stopped
     image: "grafana/loki:3.7.9"
     networks:
-      - info
-      - subinfo
+      - telemetry
+      - ui
   tempo:
     container_name: kimishinu-tempo
     restart: unless-stopped
@@ -52,8 +38,24 @@ services:
       - ./internal/observability/tempo.yaml:/etc/tempo.yaml:ro
       - k_tempo:/var/tempo
     networks:
-      - info
-      - subinfo
+      - telemetry
+      - ui
+  
+  otelcol:
+    container_name: "kimishinu-otelcol"
+    restart: unless-stopped
+    image: otel/opentelemetry-collector:0.165.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    ports:
+      - 4318:4318
+    volumes:
+      - "./internal/observability/otelcol.yaml:/etc/otelcol/config.yaml:ro"
+    networks:
+      - backend
+      - telemetry
+    depends_on:
+      - loki
+      - tempo
   grafana:
     container_name: "kimishinu-grafana"
     restart: unless-stopped
@@ -65,9 +67,10 @@ services:
     ports:
       - 3000:3000
     volumes:
+      - ./internal/observability/grafana.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
       - k_grafana:/var/lib/grafana
     networks:
-      - subinfo
+      - ui
 
   backend:
     build:
@@ -79,30 +82,29 @@ services:
       - path: ".env"
         required: false
     ports:
-      - 127.0.0.1:8080:8080
+      - 8080:8080
     depends_on:
       db:
         condition: service_healthy
     networks:
-      - bridge
-
+      - backend
 volumes:
   k_db:
-  k_alloy:
+  k_otelcol:
   k_grafana:
   k_tempo:
 
 networks:
-  bridge:
+  backend:
     name: backend
-  info:
+  telemetry:
     name: telemetry
-  subinfo:
+  ui:
     name: ui
 
 ## My networking setup little diagram is:
-## backend (bridge) <-> telemetry (info) <-> ui (subinfo)
+## backend <-> telemetry <-> ui
 ## In which:
 ## ## backend --> database + alloy (They both interact with the backend)
-## ## telemetry --> alloy + loki + tempo (They all interact with each other)
+## ## telemetry --> otelcol + loki + tempo (They all interact with each other)
 ## ## ui --> loki + grafana + tempo (They all interact with each other)
