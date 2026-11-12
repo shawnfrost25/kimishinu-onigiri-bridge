@@ -2,6 +2,7 @@ package job
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"kimishinu/internal/testenv"
 	"net/http"
@@ -28,7 +29,7 @@ func TestMangadexPollWorker(t *testing.T) {
 		HttpClient:  http.Client{Transport: mangadexTrip{}},
 	}
 
-	if err := worker.MDKimishinu(Mangas[0], "test-trace"); err != nil {
+	if err := worker.MDKimishinu(context.Background(), Mangas[0]); err != nil {
 		t.Fatalf("polling MangaDex: %v", err)
 	}
 }

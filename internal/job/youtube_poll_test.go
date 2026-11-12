@@ -51,7 +51,6 @@ func TestYoutubePollWorker(t *testing.T) {
 		Args: DiscordSendArgs{
 			Source:     "youtube",
 			Identifier: "video-id",
-			Trace:      "test-trace",
 		},
 	}
 	if err := discordWorker.Work(t.Context(), discordJob); err != nil {

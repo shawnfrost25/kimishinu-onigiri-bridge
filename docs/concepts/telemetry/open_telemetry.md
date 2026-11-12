@@ -1,11 +1,8 @@
-## REFACTOR DISCLAIMER
-* Current documentation is deprecated.
-
 ## The Problem
 
 * The problem was evident: to use multiple vendors, you'd need multiple logs writing to each. Historically, sending telemetry data (metrics, logs, and traces) to multiple vendors required managing multiple agents and formats. For example, if you output JSON logs, metrics, and trace data all to `stdout`, you create a chaotic pipeline. Every vendor expects data in its own specific format, forcing you to run various agents to scrape `stdout` or parse temporary files (like writing to `/tmp/log/mimi.log` just so Grafana Alloy can read it). Instead of forcing your application to format data specifically for a vendor's agent, we use OTel. OTel provides standard SDKs to structure our data, injects useful context (like correlating traces with logs), and transmits it via a unified protocol (OTLP).
 * **Without OTel** -> Suppose your company wants to migrate its metrics backend from Prometheus to VictoriaMetrics. Historically, your application code was instrumented specifically for Prometheus. To migrate, you would have to rewrite your code's instrumentation and deploy new scraping agents.
-* **With OTel** -> Because your application emits standard OTel data, the backend vendor doesn't matter. If you migrate from Prometheus to VictoriaMetrics, your application code remains completely untouched. You simply update the exporter configuration in your collector (like Grafana Alloy), and the pipeline seamlessly routes the data to the new destination.
+* **With OTel** -> Because your application emits standard OTel data, the backend vendor doesn't matter. If you migrate from Prometheus to VictoriaMetrics, your application code remains completely untouched. You simply update the exporter configuration in your collector (like OTel Collector), and the pipeline seamlessly routes the data to the new destination.
 
 ## Underlying Concept / How It Works
 
@@ -13,7 +10,7 @@
 * **Phase 1** -> Instead of forcing our logging to get sent via `stdout`, we will change the logging direction entirely; we will send them to the OTel API, which from now on will consume our logging. We do it simply by changing `slog` to `otelslog` (a built-in extension of the slog environment). Then we add the logger given by `otelslog` as our "DefaultLogger". During this phase, you'll have no way to see your logging in the terminal, since `otelslog.NewLogger` creates a logger that is automatically preset to output to the OTel API—no `stdout`.
 * **Phase 2** -> After this, we simply use the built-in tracer provided by `otel`, which is `otel.Tracer`. After getting it, we call `tracer.Start()`, which expects a `context.Context` as its first argument. It does this because it will attach the newly generated `trace_id` and `span_id` to the context and return a new context containing both. This is why we need to use `slog.InfoContext` instead of `slog.Info` and so on, because `InfoContext` will expand the `trace_id` and `span_id` that we passed through the context.
 * **Phase 3** -> Since we got the logging well-structured and sitting comfortably at the OTel API, we need a way to process our logs before they leave the API, so we let the OTel SDK handle this—it will enrich our logs with the `resource` (identifying the service name, host, or environment) and more.
-* **Phase 4** -> Now, we need a way to send that data to a Collector (in our case, Alloy). It's not like we will tell Alloy "Hey, watch the OTel API and fetch data randomly"—that would be catastrophic! What if some data is just sent, some is getting processed, and some is finished? We would get a mess. So we make OTel act as a transport—we let OTLP handle everything. Its job is simple: we specify where to export the data and which protocol to use (be it HTTP or gRPC). In the end, it will take the processed data and send it to our Collector.
+* **Phase 4** -> Now, we need a way to send that data to a Collector (in our case, OTel Collector). It's not like we will tell OTel Collector "Hey, watch the OTel API and fetch data randomly"—that would be catastrophic! What if some data is just sent, some is getting processed, and some is finished? We would get a mess. So we make OTel act as a transport—we let OTLP handle everything. Its job is simple: we specify where to export the data and which protocol to use (be it HTTP or gRPC). In the end, it will take the processed data and send it to our Collector.
 
 ## Workflow / Lifecycle (Diagram)
 
@@ -29,11 +26,11 @@ flowchart TD
     P1 --> P2["Phase 2: Tracer & Context Propagation (TraceID/SpanID)"]
     P2 --> P3["Phase 3: OTel SDK Processing & Resource Enrichment"]
     P3 --> P4["Phase 4: OTLP Exporter (HTTP/gRPC transport)"]
-    P4 --> Alloy["Grafana Alloy (Collector)"]
+    P4 --> Collector["OTel Collector"]
     
-    Alloy --> Loki["Loki (Logs Backend)"]
-    Alloy --> Tempo["Tempo (Traces Backend)"]
-    Alloy --> Prom["Prometheus (Metrics Backend)"]
+    Collector --> Loki["Loki (Logs Backend)"]
+    Collector --> Tempo["Tempo (Traces Backend)"]
+    Collector --> Prom["Prometheus (Metrics Backend)"]
 
     style App fill:#DDF4F0,stroke:#0F766E,color:#134E4A,stroke-width:2px
     style OldWay fill:#FEF3C7,stroke:#B45309,color:#78350F,stroke-width:2px
@@ -44,7 +41,7 @@ flowchart TD
     style P2 fill:#E8F5E9,stroke:#2E7D32,color:#14532D,stroke-width:2px
     style P3 fill:#E8F5E9,stroke:#2E7D32,color:#14532D,stroke-width:2px
     style P4 fill:#E8F5E9,stroke:#2E7D32,color:#14532D,stroke-width:2px
-    style Alloy fill:#E0F2FE,stroke:#0369A1,color:#0C4A6E,stroke-width:2px
+    style Collector fill:#E0F2FE,stroke:#0369A1,color:#0C4A6E,stroke-width:2px
     style Loki fill:#F3E8FF,stroke:#7E22CE,color:#581C87,stroke-width:2px
     style Tempo fill:#F3E8FF,stroke:#7E22CE,color:#581C87,stroke-width:2px
     style Prom fill:#F3E8FF,stroke:#7E22CE,color:#581C87,stroke-width:2px
@@ -154,7 +151,7 @@ import (
 )
 
 func LoggerSetup(ctx context.Context) (*log.LoggerProvider, error) {
-    exporter, err := otlploghttp.New(ctx, otlploghttp.WithEndpoint("alloy:4318"), otlploghttp.WithInsecure())
+    exporter, err := otlploghttp.New(ctx, otlploghttp.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
@@ -164,8 +161,7 @@ func LoggerSetup(ctx context.Context) (*log.LoggerProvider, error) {
 
 ```
 
-* Now, let me explain what happens here. First, we create an exporter using `otlploghttp.New()`. The exporter needs an endpoint, which this example provides directly as `alloy:4318` through `WithEndpoint(...)`. `OTEL_EXPORTER_OTLP_ENDPOINT` is an alternative way to configure that endpoint, not a requirement for this setup. From there, OTel acts as a pipeline to our collector (the one receiving logs from the OTel API). After this, we use `log.NewBatchProcessor` to batch the logs before they are exported. The logs collect inside the OTel API, so the batch processor periodically sends them to the exporter. This avoids opening a new connection for every log line and reduces latency. Finally, `log.NewLoggerProvider` hands the logging over to the batch processor and manages the log metadata. It is also strongly recommended to set the service name with the `OTEL_SERVICE_NAME` environment variable; otherwise, it may default to a confusing name.
+* Now, let me explain what happens here. First, we create an exporter using `otlploghttp.New()`. The exporter needs an endpoint, which we can provide directly through `WithEndpoint(...)`. Or simply let the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable do the work. `OTEL_EXPORTER_OTLP_ENDPOINT` is an alternative way to configure that endpoint - it's a more flexible approach that allows you to change the endpoint without modifying the code. From there, OTel acts as a pipeline to our collector (the one receiving logs from the OTel API). After this, we use `log.NewBatchProcessor` to batch the logs before they are exported. The logs collect inside the OTel API, so the batch processor periodically sends them to the exporter. This avoids opening a new connection for every log line and reduces latency. Finally, `log.NewLoggerProvider` hands the logging over to the batch processor and manages the log metadata. It is also strongly recommended to set the service name with the `OTEL_SERVICE_NAME` environment variable; otherwise, it may default to a confusing name.
 
 ## What I Still Don't Understand
-
 //

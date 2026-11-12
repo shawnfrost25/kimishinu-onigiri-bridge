@@ -2,6 +2,7 @@ package job
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"kimishinu/internal/testenv"
 	"net/http"
@@ -29,7 +30,7 @@ func TestTwitterPollWorker(t *testing.T) {
 		ApiKey:      "mock_key",
 	}
 
-	if err := worker.TWTKimishinu(Users[1], "test-trace"); err != nil {
+	if err := worker.TWTKimishinu(context.Background(), Users[1]); err != nil {
 		t.Fatalf("polling Twitter: %v", err)
 	}
 }
