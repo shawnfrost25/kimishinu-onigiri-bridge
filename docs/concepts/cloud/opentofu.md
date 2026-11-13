@@ -24,7 +24,7 @@ terraform {
   }
 }
 ```
-* **Phase 1:** Before doing anything, we declare the exact version of OpenTofu we expect to run. The `~>` symbol means "you can wander wherever you want within this family, but nowhere below or above." By writing `~> 1.6`, you are telling OpenTofu it is allowed to use `1.6.0` up to `1.6.99`, but it is strictly forbidden from jumping to `1.7` or dropping below `1.6`. This prevents accidental breaking changes.
+* **Phase 1:** Before doing anything, we declare the exact version of OpenTofu we expect to run. The `~>` symbol means "you can wander wherever you want within this family, but nowhere below or above." By writing `~> 1.6`, you are telling OpenTofu it is allowed to use `1.6.0` up to `1.9.99`, but it is strictly forbidden from jumping to `2.0` or dropping below `1.6`. This prevents accidental breaking changes.
 * **Phase 2:** Because OpenTofu does not know how to talk to AWS out of the box, we use this block to list the external translation plugins it needs to download. Remember, this phase doesn't run anything—it just downloads the necessary tools. This is why we MUST run `tofu init` when changing something here, because we are changing how `opentofu` should interact with AWS.
 * **Phase 3:** Inside the shopping list, we have to hard-lock ourselves to a specific provider:
 * **The Name (`aws = {}`):** This is just a custom variable name you choose to store the provider. You could technically name it anything (you could write it as `sheena = {}`), but `aws` is the standard. You will use this variable name later when you actually configure the provider.
@@ -38,7 +38,7 @@ As said, you won't store `terraform.tfstate` locally, which, honestly, is alrigh
 backend "s3" {
   bucket       = "kimishinu-poll-787391402772-eu-north-1-an"
   key          = "kimishinu/prod/terraform.tfstate"
-  region       = "eu-central-1"
+  region       = "eu-north-1"
   encrypt      = true
   use_lockfile = true
 }
@@ -84,7 +84,7 @@ Well, there's a clear distinction from a normal environment, because AWS locks a
 ```hcl
 resource "aws_iam_role" "backens_secret_fetch" {
   name = "test_policy"
-  policy = jsondecode({
+  assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -103,7 +103,7 @@ resource "aws_iam_role" "backens_secret_fetch" {
 * Quick explanation. When we write `aws_iam_role`, we need to declare multiple settings. We do it in a JSON style, but there is documentation for it, so it's not as complicated. We are currently defining which role our instance is going to get attached to. In this case, we wrote `sts:AssumeRole`. Let me give an analogy for what it means: Think of the credential token as a visitor security badge. Think of yourself as a senior engineer; the boss let you access the main infrastructure, but your simple employee badge won't do anything, and it won't give you the needed permissions. So you walk to the IAM Policy Document security guard, who will see your status (who you are and your role) and assume your role. Now you have the visitor security badge, meaning you can access the infrastructure. See? An "IAM Role" is simply us creating the badge and saying who can receive it. In our case, we clearly stated, "We can give it to AWS EC2 only." This is what we need to provide to our EC2 (no policy document or anything) if we want it to point out the missing IAM permissions and then we can attach them. But before that, here is what each IAM phase does. Since it is divided into multiple phases, here they are:
 * **`aws_iam_role`** -> Before assigning everything, we must declare which IAM role we are going to create and to whom it is assignable. We will not simply give it to everyone, so we specify who can receive it and what type of permission it provides. In our case, we make it assignable only to AWS EC2 (`ec2.amazonaws.com`), and we assume their role, so we won't have to worry.
 * **`aws_iam_policy`** -> We are happy: we just declared who can bear the role, but there's a difference. We need to specify what permissions the policy we are going to create has. For example, maybe our backend needs to read AWS secrets containing sensitive information such as API keys, so we declare a set of rules (for example: may the service that gets this policy be able to create files and also read environment variables?).
-* **`aws_iam_role_policy_attachments`** -> Just as the name states, we simply attach the IAM role and the IAM policies together. Since we declared them separately, now they'll act as a set of rules. Without this command, they would remain a random policy and a random role; after this, they'll become a role with a set of policies.
+* **`aws_iam_role_policy_attachment`** -> Just as the name states, we simply attach the IAM role and the IAM policies together. Since we declared them separately, now they'll act as a set of rules. Without this command, they would remain a random policy and a random role; after this, they'll become a role with a set of policies.
 * **`aws_iam_instance_profile`** -> This is the final part. Think of it as a wrapper that takes the roles with their set of rules and makes them available to be attached to the EC2.
 * **FULL WORKFLOW**:
 ```plaintext
