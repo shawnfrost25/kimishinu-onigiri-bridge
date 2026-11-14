@@ -22,3 +22,9 @@ resource "aws_instance" "kimishinu-backend" {
 output "vm_public_ip" {
   value = aws_instance.kimishinu-backend.public_ip
 }
+
+// Missing things to get done:
+// ssh to VM and manually wire up the OTel Collector
+// ssh to VM and create a .env to make everything running
+// create a CI/CD to use OIDC and push to AWS Registry
+// Stop relying on manual Observability, fallback to Grafana Cloud
