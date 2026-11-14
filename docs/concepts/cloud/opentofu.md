@@ -110,4 +110,108 @@ resource "aws_iam_role" "backens_secret_fetch" {
 Create a Role (state who can attach it) -> Create the policy (give it the needed permissions) -> Attach the role and policy together -> Wrap it to make it compatible -> Simply state it inside the VM that needs those roles
 ```
 
-// Continuation of Subnets and Network Groups tomorrow
+### Security Groups
+Fortunately, Security Groups are not as complicated as IAM policies. Think of them as a virtual firewall where you specify which ports are open and which are closed. For example, if we want our backend to interact with the database, we must open the port that the database is listening on (usually `5432` for PostgreSQL). If we don't open it, the backend simply won't be able to connect. Also worth mentioning: AWS Security Groups are **stateful**, meaning return traffic is never blocked. You only need to open the port for the direction that **starts** the connection—the reply is automatically allowed back through. For example, when our backend sends a request to port `5432` to fetch users, the database can send the response back without requiring us to open an extra ingress port on the backend.
+First, we declare the empty security groups, and then we declare their ingress and egress rules:
+```hcl
+resource "aws_security_group" "backend_sg" {
+  name        = "kimishinu-sg-backend"
+  description = "What is allowed to enter and leave our backend"
+}
+
+resource "aws_security_group" "database_sg" {
+  name        = "kimishinu-sg-database"
+  description = "What is allowed to enter and leave our database"
+}
+
+resource "aws_vpc_security_group_egress_rule" "backend_to_discord" {
+  security_group_id = aws_security_group.backend_sg.id
+  ip_protocol       = "tcp"
+  description       = "Allow backend to send HTTPS requests"
+
+  from_port = 443
+  to_port   = 443
+  cidr_ipv4 = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_egress_rule" "backend_to_database" {
+  security_group_id = aws_security_group.backend_sg.id
+  ip_protocol       = "tcp"
+  description       = "Allow backend to interact with PostgreSQL"
+
+  from_port                    = 5432
+  to_port                      = 5432
+  referenced_security_group_id = aws_security_group.database_sg.id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "database_from_backend" {
+  security_group_id = aws_security_group.database_sg.id
+  ip_protocol       = "tcp"
+  description       = "Expose database for backend interaction"
+
+  from_port                    = 5432
+  to_port                      = 5432
+  referenced_security_group_id = aws_security_group.backend_sg.id
+}
+```
+* See? We first created two empty groups, and then we added rules defining what can leave and what can enter them. The only thing remaining is attaching them to our instances. Let's break down each block cleanly:
+* **`aws_security_group`** $\rightarrow$ Creates an empty security group container. Think of it as an empty badge that will soon define what is allowed to enter and leave the resource wearing it.
+* **`aws_vpc_security_group_egress_rule`** $\rightarrow$ Specifies what outbound traffic is allowed to leave our backend. Here, we allow `backend_sg` to send requests out to port `443` (for HTTPS requests to Discord) and port `5432` (for PostgreSQL). For the database rule, we also specify that port `5432` traffic can *only* be sent to targets wearing `database_sg`.
+* **`aws_vpc_security_group_ingress_rule`** $\rightarrow$ Exposes port `5432` on the database security group, specifying that incoming requests are only accepted if they come from a resource wearing `backend_sg`.
+
+### What is an AMI?
+Think of an AMI (Amazon Machine Image) as an OS image. For example, if you want to create a VM running the latest Ubuntu release, you need to provide its AMI ID—a unique identifier for that specific OS image. Instead of hardcoding an ID manually, we use `data "aws_ami"` to dynamically fetch the latest Ubuntu image for our EC2 instances:
+```hcl
+data "aws_ami" "ubuntu_ami" {
+  most_recent = true
+  owners      = ["099720109477"]
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-arm64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+```
+Quick explanation of what each line means:
+* **`data "aws_ami"`** $\rightarrow$ A data source, meaning we are querying existing information from AWS rather than creating a new resource.
+* **`most_recent = true`** $\rightarrow$ Tells OpenTofu to grab the newest version of the image that matches our filters.
+* **`owners = ["099720109477"]`** $\rightarrow$ The official AWS account ID for Canonical (the company behind Ubuntu). Specifying this guarantees we are pulling a verified, official Ubuntu image rather than a random third-party upload.
+* **`filter`** $\rightarrow$ Narrows down the catalog search so we get the exact image we want. Think of these blocks like URL query parameters (`?name=ubuntu/...&virtualization-type=hvm`) filtering a massive menu down to one exact Ubuntu 24.04 ARM64 image.
+* By fetching the AMI dynamically like this, we ensure our EC2 instance always launches with the latest security patches without hardcoding region-specific IDs.
+
+### Create an EC2 Instance
+This is the easiest part—here you simply wire everything together:
+```hcl
+resource "aws_instance" "kimishinu_backend" {
+  ami                    = data.aws_ami.ubuntu_ami.id
+  instance_type          = var.backend_instance_type
+  vpc_security_group_ids = [aws_security_group.backend_sg.id]
+
+  root_block_device {
+    volume_type           = "gp3"
+    volume_size           = 10
+    encrypted             = true
+    delete_on_termination = true
+  }
+
+  tags = {
+    Name = "kimishinu-poll-backend"
+  }
+}
+
+output "vm_public_ip" {
+  value = aws_instance.kimishinu_backend.public_ip
+}
+```
+Quick explanation of what each block does:
+* **`ami`** -> Plugs in the `.id` of the Ubuntu image we just fetched using our `data "aws_ami"` lookup.
+* **`instance_type`** -> Sets the virtual hardware size (CPU and RAM) using our variable—for example, `t4g.micro`, which matches the `arm64` architecture of our Ubuntu AMI.
+* **`vpc_security_group_ids`** -> Attaches our `backend_sg` firewall badge to the VM so our egress rules immediately take effect.
+* **`root_block_device`** -> Configures the VM's primary hard drive: a fast `10 GB` `gp3` SSD that is encrypted at rest and automatically deleted (`delete_on_termination = true`) when we destroy the VM so we don't pay for leftover storage.
+* **`tags`** -> Gives the instance a human-readable `Name` inside the AWS EC2 console so it's easy to spot.
+* **`output "vm_public_ip"`** -> Prints the server's assigned public IP address directly in your terminal once `tofu apply` finishes so you know where to reach it.
