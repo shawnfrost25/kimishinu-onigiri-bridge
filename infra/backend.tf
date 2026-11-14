@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "kimishinu-backend" {
-  ami                    = data.aws_ami.ubuntu_ami
+  ami                    = data.aws_ami.ubuntu_ami.id
   instance_type          = var.backend_instance_type
   vpc_security_group_ids = [aws_security_group.backend_sg.id]
 
@@ -15,7 +15,7 @@ resource "aws_instance" "kimishinu-backend" {
   }
 
   tags = {
-    Name = "kimishinu-poll-backend"
+    Name = "kimishinu-poll-${var.env}-backend"
   }
 }
 

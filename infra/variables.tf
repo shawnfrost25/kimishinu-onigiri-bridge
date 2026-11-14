@@ -12,3 +12,8 @@ variable "backend_instance_type" {
   type        = string
   description = "The backend instance type"
 }
+
+variable "env" {
+  type        = string
+  description = "Choose between 'prod' or 'staging'"
+}

@@ -8,9 +8,8 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "kimishinu-poll"
-    key          = "kimishinu/prod/terraform.tfstate"
-    region       = "eu-central-1"
+    key          = "kimishinu/terraform.tfstate"
+    region       = "eu-north-1"
     encrypt      = true
     use_lockfile = true
   }

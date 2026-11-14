@@ -3,12 +3,12 @@
 # ==========================================
 
 resource "aws_security_group" "backend_sg" {
-  name        = "kimishinu-sg-backend"
+  name        = "kimishinu-${var.env}-sg-backend"
   description = "What is allowed to enter and leave our backend"
 }
 
 resource "aws_security_group" "database_sg" {
-  name        = "kimishinu-sg-database"
+  name        = "kimishinu-${var.env}-sg-database"
   description = "What is allowed to enter and leave our database"
 }
 
@@ -22,7 +22,7 @@ resource "aws_vpc_security_group_egress_rule" "backend_to_discord" {
   description       = "Allow backend to send https requests"
 
   from_port = 443
-  to_port   = 433
+  to_port   = 443
   cidr_ipv4 = "0.0.0.0/0"
 }
 
