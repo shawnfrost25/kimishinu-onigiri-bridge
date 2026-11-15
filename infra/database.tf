@@ -3,16 +3,18 @@ data "aws_ssm_parameter" "db_password" {
   with_decryption = true
 }
 
-resource "aws_db_instance" "mimi_database_engine" {
+resource "aws_db_instance" "kimishinu-database" {
   identifier            = "kimishinu-${var.env}-db"
   allocated_storage     = 20
   max_allocated_storage = 100
+  storage_type          = "gp3"
   engine                = "postgres"
   engine_version        = "18"
   instance_class        = "db.t4g.micro"
   username              = "kimishinu_${var.env}_db"
   password              = data.aws_ssm_parameter.db_password.value
 
+  multi_az               = false
   vpc_security_group_ids = [aws_security_group.database_sg.id]
 
   skip_final_snapshot = true

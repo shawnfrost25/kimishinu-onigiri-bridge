@@ -1,7 +1,3 @@
-provider "aws" {
-  region = var.region
-}
-
 resource "aws_instance" "kimishinu-backend" {
   ami                    = data.aws_ami.ubuntu_ami.id
   instance_type          = var.backend_instance_type
@@ -26,5 +22,4 @@ output "vm_public_ip" {
 // Missing things to get done:
 // ssh to VM and manually wire up the OTel Collector
 // ssh to VM and create a .env to make everything running
-// create a CI/CD to use OIDC and push to AWS Registry
 // Stop relying on manual Observability, fallback to Grafana Cloud

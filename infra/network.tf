@@ -48,7 +48,7 @@ resource "aws_vpc_security_group_ingress_rule" "ssh_to_backend" {
 
 resource "aws_vpc_security_group_ingress_rule" "database_from_backend" {
   security_group_id = aws_security_group.database_sg.id
-  ip_protocol       = "tpc"
+  ip_protocol       = "tcp"
   description       = "Expose database for backend interaction"
 
   from_port                    = 5432
